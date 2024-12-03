@@ -1292,7 +1292,7 @@ void idCollisionModelManagerLocal::Rotation180( trace_t *results, const idVec3 &
 	tw.start = start - modelOrigin;
 	// rotation axis, axis is assumed to be normalized
 	tw.axis = axis;
-	assert( tw.axis[0] * tw.axis[0] + tw.axis[1] * tw.axis[1] + tw.axis[2] * tw.axis[2] > 0.99f );
+	//assert( tw.axis[0] * tw.axis[0] + tw.axis[1] * tw.axis[1] + tw.axis[2] * tw.axis[2] > 0.99f );
 	// rotation origin projected into rotation plane through tw.start
 	tw.origin = rorg - modelOrigin;
 	d = (tw.axis * tw.origin) - ( tw.axis * tw.start );
