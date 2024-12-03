@@ -11300,14 +11300,16 @@ void idPlayer::InitPlayerBones()
 	ik_handAttacher[0] = animator.GetJointHandle( "RhandWeap" );
 	if ( ik_handAttacher[0] == INVALID_JOINT )
 	{
-		gameLocal.Error( "Joint RhandWeap not found for player anim default\n" );
+		gameLocal.Warning( "Joint RhandWeap not found for player anim default\n" );
+		ik_handAttacher[0] = ik_hand[0];
 	}
 
 	ik_handAttacher[1] = animator.GetJointHandle( "LhandWeap" );
 
 	if ( ik_handAttacher[1] == INVALID_JOINT )
 	{
-		gameLocal.Error( "Joint LhandWeap not found for player anim default\n" );
+		gameLocal.Warning( "Joint LhandWeap not found for player anim default\n" );
+		ik_handAttacher[1] = ik_hand[1];
 	}
 
 	idStr animPre = "default";// this is the anim that has the default/normal hand and weapon attacher orientations (relationsh
