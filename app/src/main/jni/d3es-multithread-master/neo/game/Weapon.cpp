@@ -2047,7 +2047,7 @@ idWeapon::GetProjectileLaunchOriginAndAxis
 void idWeapon::GetProjectileLaunchOriginAndAxis( idVec3& origin, idMat3& axis )
 {
     assert( owner != NULL );
-    if ( game->isVR )
+    if ( game->isVR && !gameLocal.isMultiplayer )
     {
         static weapon_t curWeap = WEAPON_NONE;
 
@@ -2083,6 +2083,10 @@ void idWeapon::GetProjectileLaunchOriginAndAxis( idVec3& origin, idMat3& axis )
                 break;
 
         }
+        return;
+    } else {
+        origin = renderEntity.origin;
+        axis = renderEntity.axis;
         return;
     }
 
