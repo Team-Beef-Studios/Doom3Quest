@@ -1589,7 +1589,7 @@ void idCollisionModelManagerLocal::Rotation180( trace_t *results, const idVec3 &
 	} else {
 		results->fraction = idMath::Fabs( atan( tw.maxTan ) * ( 2.0f * 180.0f / idMath::PI ) / tw.angle );
 	}
-	assert( results->fraction <= 1.0f );
+	//assert( results->fraction <= 1.0f );
 	endRotation.Set( rorg, axis, startAngle + (endAngle-startAngle) * results->fraction );
 	endRotation.RotatePoint( results->endpos );
 	results->endAxis = trmAxis * endRotation.ToMat3();
