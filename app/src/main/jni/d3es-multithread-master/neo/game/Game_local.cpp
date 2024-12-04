@@ -2583,7 +2583,7 @@ void idGameLocal::SetMSec(int value) const {
     if ((value <= 0) || (value > msec)) {
         value = msec;
     }
-    if (cvarSystem) {
+    if (cvarSystem && !gameLocal.isMultiplayer) {
         cvarSystem->SetCVarFloat("vr_timescale", (float)value / (float)msec);
     }
 }
