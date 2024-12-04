@@ -1292,6 +1292,8 @@ bool idSessionLocal::BoxDialogSanityCheck( void ) {
 	return true;
 }
 
+extern "C" void Doom3Quest_FrameSetup(int controlscheme, int switch_sticks, int refresh);
+
 /*
 =================
 idSessionLocal::MessageBox
@@ -1405,6 +1407,11 @@ const char* idSessionLocal::MessageBox( msgBoxType_t type, const char *message, 
 		common->GUIFrame( true, network );
 		msgIgnoreButtons = false;
 		while ( msgRunning ) {
+			if (game->isVR) {
+				Doom3Quest_FrameSetup(cvarSystem->GetCVarInteger("vr_weaponHand"),
+                                      cvarSystem->GetCVarInteger("vr_switchSticks"),
+                                      cvarSystem->GetCVarInteger("vr_refresh"));
+			}
 			common->GUIFrame( true, network );
 		}
 		if ( msgRetIndex < 0 ) {
