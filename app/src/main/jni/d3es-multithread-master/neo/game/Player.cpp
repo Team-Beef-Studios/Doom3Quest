@@ -5427,11 +5427,11 @@ void idPlayer::UpdatePowerUps( void ) {
 	}
 
 	//Lubos BEGIN
-	if ( gameLocal.isMultiplayer && renderEntity.entityNum == 0 ) {
+	if ( gameLocal.isMultiplayer && entityNumber == 0 ) {
 		const char *skin;
 		spawnArgs.GetString( "skin_invisibility", "", &skin );
 		renderEntity.customSkin =  declManager->FindSkin( skin );
-        vr_flashlightMode.SetInteger( FLASHLIGHT_HAND );
+		commonVr->currentFlashlightMode = FLASHLIGHT_HAND;
 	}
 	//Lubos END
 	else if ( health > 0 ) {
