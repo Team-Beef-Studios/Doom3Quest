@@ -19336,6 +19336,9 @@ windowDef MultiplayerLANParent {
 		}
 		onTime 50 {
 			resetTime "ToolTip2" "0" ;
+			set "Cinematics::visible" "0";
+			set "Tips::visible" "0";
+			set "D3QVersion::visible" "0";
 		}
 		onTime 800 {
 			if ("MultiplayerLANParent::selected" == 2) {
@@ -19404,6 +19407,9 @@ windowDef MultiplayerLANParent {
 		}
 		onTime 50 {
 			resetTime "ToolTip2" "0" ;
+			set "Cinematics::visible" "1";
+			set "Tips::visible" "1";
+			set "D3QVersion::visible" "1";
 		}
 		onTime 1000 {
 			set "DoomLogo::visible" "1" ;
