@@ -230,7 +230,7 @@ CLASS_DECLARATION( idActor, idPlayer )
     // Koz end
 END_CLASS
 
-const int MAX_RESPAWN_TIME_MP = 500; //Lubos: in multiplayer is for some reason the timing different
+const int MAX_RESPAWN_TIME_MP = 2000; //Lubos: in multiplayer is for some reason the timing different
 const int MAX_RESPAWN_TIME = 10000;
 const int RAGDOLL_DEATH_TIME = 3000;
 const int MAX_PDAS = 64;
