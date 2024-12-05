@@ -230,6 +230,7 @@ CLASS_DECLARATION( idActor, idPlayer )
     // Koz end
 END_CLASS
 
+const int MAX_RESPAWN_TIME_MP = 500; //Lubos: in multiplayer is for some reason the timing different
 const int MAX_RESPAWN_TIME = 10000;
 const int RAGDOLL_DEATH_TIME = 3000;
 const int MAX_PDAS = 64;
@@ -12952,8 +12953,13 @@ void idPlayer::Kill( bool delayRespawn, bool nodamage ) {
 			if ( delayRespawn ) {
 				forceRespawn = false;
 				int delay = spawnArgs.GetFloat( "respawn_delay" );
-				minRespawnTime = gameLocal.time + SEC2MS( delay );
-				maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME;
+				if ( gameLocal.isMultiplayer ) {
+					minRespawnTime = gameLocal.time + MAX_RESPAWN_TIME_MP / 4;
+					maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME_MP;
+				} else {
+					minRespawnTime = gameLocal.time + SEC2MS( delay );
+					maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME;
+				}
 			}
 		}
 	}
@@ -12994,7 +13000,10 @@ void idPlayer::Killed( idEntity *inflictor, idEntity *attacker, int damage, cons
 
 	animator.ClearAllJoints();
 
-	if ( StartRagdoll() ) {
+	if ( gameLocal.isMultiplayer ) {
+		minRespawnTime = gameLocal.time + MAX_RESPAWN_TIME_MP / 4;
+		maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME_MP;
+	} else if ( StartRagdoll() ) {
 		pm_modelView.SetInteger( 0 );
 		minRespawnTime = gameLocal.time + RAGDOLL_DEATH_TIME;
 		maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME;
