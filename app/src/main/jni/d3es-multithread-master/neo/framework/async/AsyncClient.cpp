@@ -1072,6 +1072,14 @@ void idAsyncClient::ProcessChallengeResponseMessage( const netadr_t from, const 
 	// ( if the client can restart directly with the right pak order, then we avoid an extra reloadEngine later.. )
 	if ( idStr::Icmp( cvarSystem->GetCVarString( "fs_game_base" ), serverGameBase ) ||
 		idStr::Icmp( cvarSystem->GetCVarString( "fs_game" ), serverGame ) ) {
+		//Lubos BEGIN
+		if ( game->isVR ) {
+			cmdSystem->BufferCommandText( CMD_EXEC_NOW, "disconnect" );
+			session->MessageBox( MSG_OK, "Cannot connect the game because it uses different data/mod. Ensure the server is running the same version of Doom3Quest and uses the same mod.", common->GetLanguageDict()->GetString( "#str_06735" ), true );
+			return;
+		}
+		//Lubos END
+
 		// bug #189 - if the server is running ROE and ROE is not locally installed, refuse to connect or we might crash
 		if ( !fileSystem->HasD3XP() && ( !idStr::Icmp( serverGameBase, "d3xp" ) || !idStr::Icmp( serverGame, "d3xp" ) ) ) {
 			common->Printf( "The server is running Doom3: Resurrection of Evil expansion pack. RoE is not installed on this client. Aborting the connection..\n" );
@@ -1399,6 +1407,13 @@ bool idAsyncClient::ValidatePureServerChecksums( const netadr_t from, const idBi
 	inChecksums[ numChecksums ] = 0;
 
 	fsPureReply_t reply = fileSystem->SetPureServerChecksums( inChecksums, missingChecksums );
+	//Lubos BEGIN
+	if ( ( reply == PURE_RESTART ) || ( reply == PURE_MISSING ) ) {
+		cmdSystem->BufferCommandText( CMD_EXEC_NOW, "disconnect" );
+		session->MessageBox( MSG_OK, "Cannot connect the game because it uses different data/mod. Ensure the server is running the same version of Doom3Quest and uses the same mod.", common->GetLanguageDict()->GetString( "#str_06735" ), true );
+		return false;
+	}
+	//Lubos END
 	switch ( reply ) {
 		case PURE_RESTART:
 			// need to restart the filesystem with a different pure configuration
