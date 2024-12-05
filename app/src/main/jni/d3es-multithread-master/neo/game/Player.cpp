@@ -4057,7 +4057,8 @@ void idPlayer::DrawHUD( idUserInterface *_hud ) {
 
 	UpdateHudStats( _hud );
 
-	_hud->SetStateString( "weapicon",  hands[ vr_weaponHand.GetInteger() ].weapon->Icon() );
+	if ( !gameLocal.isMultiplayer )
+		_hud->SetStateString( "weapicon",  hands[ vr_weaponHand.GetInteger() ].weapon->Icon() );
 
 	// FIXME: this is temp to allow the sound meter to show up in the hud
 	// it should be commented out before shipping but the code can remain
@@ -5428,7 +5429,7 @@ void idPlayer::UpdatePowerUps( void ) {
 	}
 
 	//Lubos BEGIN
-	if ( gameLocal.isMultiplayer && entityNumber == 0 ) {
+	if ( gameLocal.isMultiplayer && entityNumber == gameLocal.localClientNum ) {
 		const char *skin;
 		spawnArgs.GetString( "skin_invisibility", "", &skin );
 		renderEntity.customSkin =  declManager->FindSkin( skin );
@@ -7410,7 +7411,10 @@ void idPlayer::UpdateWeapon( void ) {
 	if ( gameLocal.isClient ) {
 		// clients need to wait till the weapon and it's world model entity
 		// are present and synchronized ( weapon.worldModel idEntityPtr to idAnimatedEntity )
-		if( !hands[ 0 ].weapon.GetEntity()->IsWorldModelReady() || !hands[ 1 ].weapon.GetEntity()->IsWorldModelReady() ) {
+		if( !hands[ 0 ].weapon.GetEntity() || !hands[ 0 ].weapon.GetEntity()->IsWorldModelReady() ) {
+			return;
+		}
+		if( !hands[ 1 ].weapon.GetEntity() || !hands[ 1 ].weapon.GetEntity()->IsWorldModelReady() ) {
 			return;
 		}
 	}
@@ -7646,7 +7650,8 @@ void idPlayer::UpdateTeleportAim()// idVec3 beamOrigin, idMat3 beamAxis )// idVe
     {
         if (vr_teleport.GetInteger() != 1)
             aimValidForTeleport = false;
-        teleportTarget->Hide();
+
+        if (teleportTarget) teleportTarget->Hide();
         return;
     }
 
@@ -8373,7 +8378,7 @@ void idPlayer::UpdateFocus( void ) {
 	start = GetEyePosition();
 
 	// Koz begin
-	if ( game->isVR ) // Koz fixme only when vr actually active.
+	if ( game->isVR && pVRClientInfo ) // Koz fixme only when vr actually active.
 	{
 		// Koz  in VR, if weapon equipped, use muzzle orientation to scan for accessible guis,
 		// otherwise use player center eye.
@@ -10806,6 +10811,9 @@ void idPlayer::PerformImpulse( int impulse ) {
 		}
         //Lubos BEGIN
         case IMPULSE_23: {
+            if (!pVRClientInfo) {
+                return;
+            }
             gameLocal.Printf("Show weapon wheel");
             if (objectiveSystemOpen) {
                 TogglePDA(1 - vr_weaponHand.GetInteger());
@@ -16127,10 +16135,11 @@ idPlayer::Event_DisableWeapon
 void idPlayer::Event_DisableWeapon( void ) {
 	hiddenWeapon = gameLocal.world->spawnArgs.GetBool( "no_Weapons" );
 	weaponEnabled = false;
-    for( int h = 0; h < 2; h++ )
-    {
-        if( hands[ h ].weapon )
-            hands[ h ].weapon->EnterCinematic();
+    if ( !gameLocal.isMultiplayer ) {
+        for( int h = 0; h < 2; h++ ) {
+            if( hands[ h ].weapon )
+                hands[ h ].weapon->EnterCinematic();
+        }
     }
 }
 
@@ -16236,7 +16245,7 @@ idPlayer::Event_GetFlashState // get flashlight state
 void idPlayer::Event_GetFlashState() // get flashlight state
 {
     static int flashlighton;
-    flashlighton = flashlight->lightOn  ? 1 : 0 ;
+    flashlighton = flashlight && flashlight->lightOn  ? 1 : 0 ;
     // Koz debug common->Printf( "Returning flashlight state = %d\n",flashlighton );
     idThread::ReturnInt( flashlighton );
 }
@@ -16828,7 +16837,6 @@ idPlayer::ClientPredictionThink
 ================
 */
 void idPlayer::ClientPredictionThink( void ) {
-
     UpdateSkinSetup();
 
     renderEntity_t *headRenderEnt;
