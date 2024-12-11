@@ -865,6 +865,13 @@ void idGameLocal::SetVRClientInfo(vrClientInfo *pVR)
 {
 	pVRClientInfo = pVR;
 
+	//Lubos BEGIN
+	idPlayer* player = GetLocalPlayer();
+	if (player) {
+		player->SetVRClientInfo(pVRClientInfo);
+	}
+	//LUbos END
+
 	static bool firstTime = true;
 	if (firstTime) {
 		common->HapticEnable();
@@ -3218,9 +3225,9 @@ makes rendering and sound system calls
 ================
 */
 bool idGameLocal::Draw( int clientNum ) {
-	if ( isMultiplayer ) {
+	/*if ( isMultiplayer ) {
 		return mpGame.Draw( clientNum );
-	}
+	}*/
 
 	idPlayer *player = static_cast<idPlayer *>(entities[ clientNum ]);
 
