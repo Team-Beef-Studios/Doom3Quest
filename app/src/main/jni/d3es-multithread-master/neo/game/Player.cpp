@@ -5433,7 +5433,9 @@ void idPlayer::UpdatePowerUps( void ) {
 		const char *skin;
 		spawnArgs.GetString( "skin_invisibility", "", &skin );
 		renderEntity.customSkin =  declManager->FindSkin( skin );
-		commonVr->currentFlashlightMode = FLASHLIGHT_HAND;
+		if ( !pVRClientInfo || !pVRClientInfo->weapon_stabilised ) {
+			commonVr->currentFlashlightMode = FLASHLIGHT_HAND;
+		}
 	}
 	//Lubos END
 	else if ( health > 0 ) {
