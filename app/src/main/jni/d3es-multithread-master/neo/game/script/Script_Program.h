@@ -44,7 +44,7 @@ class idSaveGame;
 class idRestoreGame;
 
 #define MAX_STRING_LEN		128
-#define MAX_GLOBALS			296608			// in bytes - DG: increased this for better support of mods that use the vanilla game dll
+#define MAX_GLOBALS			896608			// in bytes - Lubos: increased this for Phobos support
 #define MAX_STRINGS			1024
 #define MAX_FUNCS			3584
 #define MAX_STATEMENTS		131072			// statement_t - 18 bytes last I checked

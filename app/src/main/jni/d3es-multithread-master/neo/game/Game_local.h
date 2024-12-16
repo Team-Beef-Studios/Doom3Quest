@@ -563,6 +563,10 @@ public:
 	void					SetGibTime( int _time ) { nextGibTime = _time; };
 	int						GetGibTime() { return nextGibTime; };
 
+	idVec2					GetScreenAspectRatio() const;
+	float					CalculateUIAspectCorrection() const;
+	void					SetUIAspectRatio(idUserInterface *ui) const;
+
 	// Koz made public
 	void					SetScriptFPS( const float com_engineHz );
 	// Koz end
@@ -573,6 +577,7 @@ public:
 
 private:
 	const static int		INITIAL_SPAWN_COUNT = 1;
+	const static int		INTERNAL_SAVEGAME_VERSION = 1; // DG: added this for >= 1305 savegames
 
 	vrClientInfo 		*pVRClientInfo;
 

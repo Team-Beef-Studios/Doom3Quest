@@ -184,6 +184,9 @@ const idEventDef EV_Player_StartWarp("startWarp");
 const idEventDef EV_Player_StopHelltime("stopHelltime", "d");
 const idEventDef EV_Player_ToggleBloom("toggleBloom", "d");
 const idEventDef EV_Player_SetBloomParms("setBloomParms", "ff");
+const idEventDef EV_Player_ShowConsequences("showConsequences", NULL);
+const idEventDef EV_Player_SetViewAngles("setViewAngles", "v");
+const idEventDef EV_Player_GetEyeHeight("getEyeHeight", NULL, 'f');
 // Koz begin - let scripts query which hand does what when using motion controls
 const idEventDef EV_Player_GetWeaponHand( "getWeaponHand", NULL, 'd' );
 const idEventDef EV_Player_GetFlashHand( "getFlashHand", NULL, 'd' ); // get flashlight hand
@@ -221,6 +224,9 @@ CLASS_DECLARATION( idActor, idPlayer )
 	EVENT(EV_Player_StopHelltime,			idPlayer::Event_StopHelltime)
 	EVENT(EV_Player_ToggleBloom,			idPlayer::Event_ToggleBloom)
 	EVENT(EV_Player_SetBloomParms,			idPlayer::Event_SetBloomParms)
+	EVENT(EV_Player_ShowConsequences,		idPlayer::Event_ShowConsequences)
+	EVENT(EV_Player_SetViewAngles,			idPlayer::Event_SetViewAngles)
+	EVENT(EV_Player_GetEyeHeight,			idPlayer::Event_GetEyeHeight)
     // Koz begin
     EVENT( EV_Player_GetWeaponHand, 		idPlayer::Event_GetWeaponHand )
     EVENT( EV_Player_GetFlashHand,			idPlayer::Event_GetFlashHand ) // get flashlight hand
@@ -12860,6 +12866,34 @@ void idPlayer::PlayHelltimeStopSound() {
         PostEventMS(&EV_StartSoundShader, 0, sound, SND_CHANNEL_ANY);
     }
 }
+/*
+=================
+idPlayer::Event_ShowConsequences
+=================
+*/
+void idPlayer::Event_ShowConsequences() {
+    if (hud) {
+        hud->HandleNamedEvent("Consequences");
+    }
+}
+
+/*
+=================
+idPlayer::Event_SetViewAngles
+=================
+*/
+void idPlayer::Event_SetViewAngles(const idVec3 &angles) {
+    viewAngles[0] = angles[0];
+    viewAngles[1] = angles[1];
+    viewAngles[2] = angles[2];
+}
+
+/*
+=================
+idPlayer::Event_GetEyeHeight
+=================
+*/
+void idPlayer::Event_GetEyeHeight() { idThread::ReturnFloat(eyeOffset.z); }
 
 /*
 ==============

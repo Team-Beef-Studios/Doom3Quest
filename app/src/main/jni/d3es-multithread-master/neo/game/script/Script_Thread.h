@@ -192,6 +192,17 @@ private:
 	void						Event_DebugBounds( const idVec3 &color, const idVec3 &mins, const idVec3 &maxs, const float lifetime );
 	void						Event_DrawText( const char *text, const idVec3 &origin, float scale, const idVec3 &color, const int align, const float lifetime );
 	void						Event_InfluenceActive( void );
+	void 						Event_QuickSave(const char *name);
+	void 						Event_DisableItemGroup(const char *name);
+	void 						Event_EnableItemGroup(const char *name);
+	void 						Event_EnableItemGroups(void);
+	void 						Event_ShowTextMessage(const char *string, int type);
+	void 						Event_ShowTextTyping(void);
+	void 						Event_HideTextTyping(void);
+	void 						Event_ShowSubtitle(const char *name, const char *text);
+	void 						Event_HideSubtitles(void);
+	void 						Event_FadeFromTo(idVec3 &colorFrom, float alphaFrom, idVec3 &colorTo, float alphaTo, float time);
+	void 						Event_Pow(float number, float power);
 
 public:
 								CLASS_PROTOTYPE( idThread );

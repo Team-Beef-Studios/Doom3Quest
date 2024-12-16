@@ -5347,6 +5347,114 @@ idGameLocal::GetMapLoadingGUI
 void idGameLocal::GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] ) { }
 
 /*
+================
+idGameLocal::GetScreenAspectRatio
+================
+*/
+namespace phobos {
+    ID_INLINE int gcd(int a, int b) {
+        int R;
+        while ((a % b) > 0) {
+            R = a % b;
+            a = b;
+            b = R;
+        }
+        return b;
+    }
+} // namespace phobos
+idVec2 idGameLocal::GetScreenAspectRatio() const {
+    float x = renderSystem->GetScreenWidth();
+    float y = renderSystem->GetScreenHeight();
+
+    int gcd = phobos::gcd(x, y); // karin: keep SDK's idlib
+
+    float ratio_x = x / gcd;
+    float ratio_y = y / gcd;
+
+    return idVec2(ratio_x, ratio_y);
+}
+
+/*
+================
+idGameLocal::CalculateUIAspectCorrection
+================
+*/
+float idGameLocal::CalculateUIAspectCorrection() const {
+    idVec2 ratioVec = GetScreenAspectRatio();
+
+    float ratio_x = ratioVec.x;
+    float ratio_y = ratioVec.y;
+
+    float ratio_screen = ratio_x / ratio_y;
+    float ratio_43 = 4.f / 3.f;
+
+    if (ratio_screen > ratio_43) {
+        return 1.f / ((ratio_x * 3.f) / (ratio_y * 4.f));
+    } else if (ratio_screen < ratio_43) {
+        return ((ratio_y * 4.f) / (ratio_x * 3.f));
+    }
+
+    return 1.f;
+}
+
+/*
+================
+idGameLocal::SetGUIAspectRatio
+================
+*/
+void idGameLocal::SetUIAspectRatio(idUserInterface *ui) const {
+    if (ui == NULL) {
+        return;
+    }
+
+    ui->SetStateInt("aspect_0_visible", 0);
+    ui->SetStateInt("aspect_1_visible", 0);
+    ui->SetStateInt("aspect_2_visible", 0);
+    ui->SetStateInt("aspect_3_visible", 0);
+
+    switch (r_aspectRatio.GetInteger()) {
+        default:
+        case -1: {
+            // auto mode => use aspect ratio from resolution, assuming screen's pixels
+            // are squares
+            const idVec2 ratioVec = GetScreenAspectRatio();
+
+            int ratio_x = ratioVec.x;
+            int ratio_y = ratioVec.y;
+
+            if (ratio_x == 4 && ratio_y == 3) {
+                ui->SetStateInt("aspect_0_visible", 1);
+            } else if (ratio_x == 16 && ratio_y == 9) {
+                ui->SetStateInt("aspect_1_visible", 1);
+            } else if (ratio_x == 16 && ratio_y == 10) {
+                ui->SetStateInt("aspect_2_visible", 1);
+            } else if (ratio_x == 21 && ratio_y == 9) {
+                ui->SetStateInt("aspect_3_visible", 1);
+            } else {
+                ui->SetStateInt("aspect_0_visible", 1);
+            }
+
+            break;
+        }
+
+        case 0:
+            // 4:3
+            ui->SetStateInt("aspect_0_visible", 1);
+            break;
+
+        case 1:
+            // 16:9
+            ui->SetStateInt("aspect_1_visible", 1);
+            break;
+
+        case 2:
+            // 16:10
+            ui->SetStateInt("aspect_2_visible", 1);
+            break;
+    }
+}
+
+/*
 ===============
 idGameLocal::InGameGuiActive
 ===============
