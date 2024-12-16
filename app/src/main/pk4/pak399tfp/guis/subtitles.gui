@@ -1,0 +1,130 @@
+windowDef Desktop {
+	forceaspectwidth 1120
+	rect	0 ,0 ,1120 ,480 
+	backcolor	0 ,0 ,0 ,0 
+	visible "gui::subtitle1_visible"
+	nocursor 1
+	
+	windowDef Subtitles_4_3
+	{						
+		rect 0, 400, 640, 80
+		backcolor 0, 0, 0, .5
+
+		visible "gui::aspect_0_visible"
+
+		windowDef Name
+		{
+			rect 0, 0, 640, 20
+			forecolor 1, .5, .25, 1
+			text "gui::subtitle1_name"
+			textalign 1
+			textscale 0.275
+			shadow 1
+			font "fonts/an"
+		}
+
+		windowDef Text
+		{	
+			rect 0, 20, 640, 50
+			forecolor .5, .75, 1, 1		
+			text "gui::subtitle1_text"
+			textalign 1
+			textscale 0.275
+			shadow 1
+			font "fonts/an"
+		}
+	}
+
+	windowDef Subtitles_16_9
+	{				
+		forceaspectwidth 853
+		rect 0, 400, 853, 80
+		backcolor 0, 0, 0, .5
+
+		visible "gui::aspect_1_visible"
+
+		windowDef Name
+		{
+			rect 0, 0, 853, 20
+			forecolor 1, .5, .25, 1
+			text "gui::subtitle1_name"
+			textalign 1
+			textscale 0.275
+			shadow 1
+			font "fonts/an"
+		}
+
+		windowDef Text
+		{	
+			rect 0, 20, 853, 50
+			forecolor .5, .75, 1, 1		
+			text "gui::subtitle1_text"
+			textalign 1
+			textscale 0.275
+			shadow 1
+			font "fonts/an"
+		}
+	}
+
+	windowDef Subtitles_16_10
+	{				
+		forceaspectwidth 768
+		rect 0, 400, 768, 80
+		backcolor 0, 0, 0, .5
+
+		visible "gui::aspect_2_visible"
+
+		windowDef Name
+		{
+			rect 0, 0, 768, 20
+			forecolor 1, .5, .25, 1
+			text "gui::subtitle1_name"
+			textalign 1
+			textscale 0.275
+			shadow 1
+			font "fonts/an"
+		}
+
+		windowDef Text
+		{	
+			rect 0, 20, 768, 50
+			forecolor .5, .75, 1, 1		
+			text "gui::subtitle1_text"
+			textalign 1
+			textscale 0.275
+			shadow 1
+			font "fonts/an"
+		}
+	}
+
+	windowDef Subtitles_21_9
+	{				
+		forceaspectwidth 1120
+		rect 0, 400, 1120, 80
+		backcolor 0, 0, 0, .5
+
+		visible "gui::aspect_3_visible"
+
+		windowDef Name
+		{
+			rect 0, 0, 1120, 20
+			forecolor 1, .5, .25, 1
+			text "gui::subtitle1_name"
+			textalign 1
+			textscale 0.275
+			shadow 1
+			font "fonts/an"
+		}
+
+		windowDef Text
+		{	
+			rect 0, 20, 1120, 50
+			forecolor .5, .75, 1, 1		
+			text "gui::subtitle1_text"
+			textalign 1
+			textscale 0.275
+			shadow 1
+			font "fonts/an"
+		}
+	}
+}

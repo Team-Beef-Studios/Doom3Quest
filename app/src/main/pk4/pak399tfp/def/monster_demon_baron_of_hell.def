@@ -1,0 +1,518 @@
+model monster_demon_baron_of_hell {
+	mesh							models/md5/monsters/baron_of_hell/baron_of_hell.md5mesh
+
+	channel torso					( *spine.1 -*leg1.l -*leg1.r -neck)
+	channel legs					(*leg1.l *leg1.r origin )
+	//channel legs					( *hips body body2 origin SPINNER )
+
+	anim af_pose					models/md5/monsters/baron_of_hell/af_pose.md5anim
+	anim ik_pose					models/md5/monsters/baron_of_hell/af_pose.md5anim
+
+	anim initial					models/md5/monsters/baron_of_hell/af_pose.md5anim
+	anim idle						models/md5/monsters/baron_of_hell/idle.md5anim 
+	anim stand						models/md5/monsters/baron_of_hell/idle.md5anim
+
+	anim walk						models/md5/monsters/baron_of_hell/walk.md5anim {
+		frame 9						sound_body snd_footstep
+		frame 9						sound_body2 snd_deepfs
+		frame 9                     fx fx/hkwalk.fx
+		frame 26					sound_body snd_footstep
+		frame 26					sound_body2 snd_deepfs
+	}
+	
+	
+	anim walk_left					models/md5/monsters/baron_of_hell/walk_left.md5anim {
+		frame 30						sound_body snd_footstep
+		frame 30						sound_body2 snd_deepfs
+		//frame 59						sound_body snd_footstep
+		//frame 59						sound_body2 snd_deepfs
+	}
+	
+	anim sight						models/md5/monsters/baron_of_hell/sight.md5anim {
+		frame 8							sound_voice snd_sight1
+
+	}
+	
+	
+	
+	anim pain						models/md5/monsters/baron_of_hell/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_chest					models/md5/monsters/baron_of_hell/pain_chest.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_head					models/md5/monsters/baron_of_hell/pain_head.md5anim {
+		frame 1							sound_voice snd_pain	
+	}
+	anim pain_right_arm				models/md5/monsters/baron_of_hell/pain_right_arm.md5anim {
+		frame 1							sound_voice snd_pain
+	}
+	anim pain_left_arm				models/md5/monsters/baron_of_hell/pain_left_arm.md5anim {
+		frame 1							sound_voice snd_pain	
+	}
+	
+	
+	anim warp					    models/md5/monsters/baron_of_hell/warp.md5anim {
+		frame 5							sound_voice snd_sight3
+	}
+	
+	
+	anim melee_attack1				models/md5/monsters/baron_of_hell/meleeL.md5anim {
+	
+		frame 11                        sound_voice snd_chatter_combat
+		frame 14						melee melee_baron_melee1
+	}
+
+
+	anim melee_attack2				models/md5/monsters/baron_of_hell/meleeR.md5anim {
+		frame 6                         sound_voice snd_chatter_combat
+		frame 16						melee melee_baron_melee1
+	}
+	
+	
+	anim ground_pound_attack			models/md5/monsters/baron_of_hell/ground_attack.md5anim {
+		ai_no_turn	
+		frame 1                         sound_voice snd_chatter_combat
+		//frame 13						melee melee_baron_melee2
+		frame 15						trigger_fx origin fx/baron_groundpound
+	}
+	
+
+	anim turret_attack1				models/md5/monsters/baron_of_hell/turret_attackL.md5anim {	
+		frame 1							object_call	skin_flare
+		frame 3							sound_body2 monster_demon_hellknight_fireball_create
+		frame 3							create_missile baron_lflame
+		frame 16						sound_weapon snd_attackmissile
+		frame 16						launch_missile baron_lflame
+	}
+	
+	anim turret_attack2				models/md5/monsters/baron_of_hell/turret_attackR.md5anim {
+		frame 1							object_call	skin_flare
+		frame 2							sound_body2 monster_demon_hellknight_fireball_create
+		frame 2							create_missile baron_rflame
+		frame 9						    sound_voice snd_chatter_combat
+		frame 16						sound_weapon snd_attackmissile
+		frame 16						launch_missile baron_rflame
+	}
+	
+	anim range_attack1				models/md5/monsters/baron_of_hell/walk_attackL.md5anim {
+		frame 1							object_call	skin_flare
+		frame 3							sound_body2 monster_demon_hellknight_fireball_create
+		frame 3							create_missile baron_lflame
+		frame 15						sound_body snd_footstep
+		frame 15						sound_body2 snd_deepfs
+		frame 15						fx fx/hkwalk.fx
+		frame 22						sound_weapon snd_attackmissile
+		frame 22						launch_missile baron_lflame
+		frame 31						sound_body snd_footstep
+		frame 31						sound_body2 snd_deepfs
+		frame 31						fx fx/hkwalk.fx
+	}
+	
+	anim range_attack2				models/md5/monsters/baron_of_hell/walk_attackR.md5anim {
+		frame 1							object_call	skin_flare
+		frame 2							sound_body2 monster_demon_hellknight_fireball_create
+		frame 2							create_missile baron_rflame
+		frame 8							sound_voice snd_chatter_combat
+		frame 15						sound_body snd_footstep
+		frame 15						sound_body2 snd_deepfs
+		frame 15						fx fx/hkwalk.fx
+		frame 20						sound_weapon snd_attackmissile
+		frame 20						launch_missile baron_rflame
+		frame 32						sound_body snd_footstep
+		frame 32						sound_body2 snd_deepfs
+		frame 32						fx fx/hkwalk.fx
+	}
+	
+	anim range_attack3				models/md5/monsters/baron_of_hell/mouth_fire.md5anim {
+		frame 13						object_call	skin_flare
+		frame 16						create_missile toungle.2
+		frame 16						sound_body2 monster_demon_hellknight_fireball_create
+		frame 21						sound_weapon snd_attackmissile
+		frame 21						launch_missile toungle.2
+	}
+	
+	anim portal					models/md5/monsters/baron_of_hell/portal.md5anim {
+		ai_no_turn
+		frame 1						disableGravity
+		frame 1						disableWalkIK
+		frame 2						sound_body snd_footstep
+		frame 9						sound_voice snd_sight2
+		frame 20					sound_body snd_footstep
+		frame 20					enableGravity
+		frame 20					enableWalkIK
+		frame 21					sound_body snd_footstep
+		frame 23					sound_body snd_footstep
+	}
+	
+	anim baronfloor_idle			models/md5/monsters/baron_of_hell/floor_riseidle.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+	}
+	anim baronfloor				models/md5/monsters/baron_of_hell/floor_rise.md5anim {
+		ai_no_turn
+		frame 1							disableGravity
+		frame 1							disableWalkIK
+		frame 18					    sound_voice snd_sight3
+		frame 38						sound_body snd_deepfs
+		frame 46					    sound_voice snd_sight2
+		frame 57						enableWalkIK
+		frame 57						enableGravity
+		frame 62						sound_body snd_deepfs
+		frame 72						sound_body snd_deepfs
+		frame 89						sound_body snd_deepfs
+
+	}
+
+}
+
+entityDef monster_demon_baron_of_hell {
+	"editor_mins"					"-48 -48 0"
+	"editor_maxs"					"48 48 96"
+	"inherit"						"monster_default"
+	"editor_var warp"				"if set, monster does a nearly instant teleport in(Classic Doom style)."
+	"fx_teleport"					"fx/teleporter_red96.fx"
+	"fx_teleport1"					"fx/teleporter1_red96.fx"
+	"fx_teleport2"					"fx/teleporter2_red96.fx"
+	"fx_teleport3"					"fx/teleporter3_red96.fx"
+	"fx_teleport4"					"fx/teleporter4_red96.fx"
+	"fx_monster_warp"				"fx/monster_warp_red.fx"
+	"fx_monster_warp1"				"fx/monster_warp1_red.fx"
+	"fx_monster_warp2"				"fx/monster_warp2_red.fx"
+	"scriptobject"					"monster_demon_baronofhell"
+	"model"							"monster_demon_baron_of_hell"
+	"model_death"					"baron_death_explosion.prt"
+	"model_explode"					"baron_death_explosion.prt"
+	"snd_splatter"					"monster_demon_baronofhell_splatter"
+	//"ragdoll"						"monster_demon_hellknight"
+	"size"							"94 94 96"
+	"use_aas"						"aas96"
+	"team"							"1"
+	"rank"							"2"
+	"health"						"1200" //up from 700 Tim - 6/9/04
+	"melee_range"					"75"
+	"turn_rate"						"100"
+	"def_projectile"				"projectile_baron_mouthfire"
+	"def_projectile_alt"			"projectile_fireball_baron"
+	"attack_cone"					"70"
+	"attack_accuracy"				"0"
+	"mass"							"10000"
+	"pain_threshold"				"100"	
+	
+	"smokeParticleSystem"			"baron_rflame"
+	"smokeParticleSystem2"			"baron_lflame"
+	"smokeParticleSystem3"			"baron_mouthflame"
+	
+	"burnaway"						""
+	"smoke_burnParticleSystem"	    "burn_imp.prt -chest"
+	
+	
+	"ik_numLegs"					"2"
+	"ik_footSize"					"4"
+	"ik_minWaistAnkleDist"			"10"
+	"ik_footUpTrace"				"32"
+	"ik_footDownTrace"				"64"
+	"ik_waist"						"spine.1"
+	"ik_hip1"						"leg1.l"
+	"ik_hip2"						"leg1.r"
+	"ik_knee1"						"leg2.l"
+	"ik_knee2"						"leg2.r"
+	"ik_ankle1"						"leg3.l"
+	"ik_ankle2"						"leg3.r"
+	"ik_dir1"						"knee.l"
+	"ik_dir2"						"knee.r"
+	"ik_foot1"						"foot.l"
+	"ik_foot2"						"foot.r"
+	
+	
+	"look_min"						"-365 -365 0"
+	"look_max"						"365 365 365"
+	"look_joint neck"				"0.4 0.4 0"
+	"look_joint head"				"0.6 0.6 0" 
+
+
+
+	"damage_zone head"				"*neck"
+	"damage_zone chest"				"*spine.1 -*arm1.r -*arm1.l -*neck"
+	"damage_zone left_arm"			"*arm1.l"
+	"damage_zone right_arm"			"*arm1.r"
+	"damage_zone legs"				"*leg1.l *leg1.r"
+	"damage_scale head"				"1.2"
+	
+	"anim"							"idle"
+
+	"snd_sight1"					"monster_demon_baronofhell_sight1"
+	"snd_sight2"					"monster_demon_baronofhell_sight2"
+	"snd_sight3"					"monster_demon_baronofhell_sight3"
+	"snd_chatter"					"monster_demon_baronofhell_chatter"
+	"snd_chatter_combat"			"monster_demon_baronofhell_chatter_combat"
+	"snd_pain"						"monster_demon_baronofhell_pain"
+	"snd_attackmissile"				"monster_demon_hellknight_attackmissile"
+	"snd_footstep"					"monster_demon_hellknight_footstep"
+	"snd_deepfs"					"hellknight_deepfs"
+	"snd_death"						"monster_demon_baronofhell_explode"
+	"snd_burn"						""
+	
+	"def_spawneffect_precache"		"baron_mouth_fireball"
+	"def_spawneffect_precache2"		"baron_fireball2"
+}
+
+entityDef damage_fireball_baron {
+	"damage"						"50"
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+}
+ 
+
+entityDef damage_fireball_baron_splash {
+	"damage"						"45"
+	"radius"						"200"
+}
+
+entityDef projectile_fireball_baron {
+	"spawnclass"				"idProjectile"
+	"mins"						"-4 -4 -4"
+	"maxs"						"4 4 4"
+	"cone"						"3"
+	"model" 					"baron_fireball2.prt"	
+
+	"def_damage"				"damage_fireball_baron"
+	"def_splash_damage"			"damage_fireball_baron_splash"
+								
+	"launchFromBarrel"			"1"
+	"health"					"5"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"					"675 0 -300"		// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"angular_velocity"			"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"					"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"				"0"					// when to start accelerating
+	"thrust_end"				"0"					// when to stop accelerating
+	"linear_friction"			"0"					// "air" friction
+	"angular_friction"			"0"
+	"contact_friction"			"0"
+	"bounce"					"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"						"5"
+	"gravity"					"250"				// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"						"20"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+								
+	"detonate_on_fuse"			"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"			"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"			"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"			"1"					// whether projectile should detonate when it hits a character in the game
+								
+	"impact_damage_effect"		"0"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"				"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+								
+	"mtr_detonate"				"textures/decals/ballburn_plasma"
+	"decal_size"				"100" 
+
+	"smoke_fly"					"baron_trail.prt"	// particle effect while in the air
+	"smoke_detonate"			""					// particle effect when detonates
+	"smoke_residue"				""					// particle effect while in the air
+	"smoke_bounce"				""					// particle effect when bounces
+	"smoke_fuse"				""					// particle effect when removed from fuse expiring
+	
+	// parametric particles -- temp
+	"model_detonate"			"baron_explosion.prt"
+									
+	"debris_count"				"3"
+	"def_debris"				"debris_largeshrapnel"
+	"def_shrapnel"				"debris_shrapnel"
+	
+	"fx_shockwave"				"fx/baron_groundpound.fx"
+	
+	"mtr_light_shader"			"lights/impflyflash"
+	"light_color"				"0.843 0.012 0.000"
+	"light_radius"				"200"
+	"light_offset"				"0 0 0"
+
+	"mtr_explode_light_shader"	"lights/impflyflash"
+	"explode_light_color"		"0.843 0.012 0.000"
+	"explode_light_radius"		"420"
+	"explode_light_fadetime"	"1"
+
+	"snd_explode"				"monster_demon_imp_fireball_explode"
+	"snd_fly"					"monster_demon_imp_fireball_flight"					// particle effect while in the air
+}
+
+entityDef melee_baron_melee1 {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 1 0"
+
+
+	"damage"						"40"
+
+	"mtr_blob"						"rightSmack"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"120"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"2"
+
+	"dv_time"						"100"
+}
+
+entityDef melee_baron_melee2 {
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"snd_miss"						"monster_demon_imp_melee_miss"
+	"kickDir"						"0 0 1"
+
+
+	"damage"						"40"
+
+	"mtr_blob"						"rightSlash"
+	"blob_time"						"300"
+	"blob_x"						"-100"
+	"blob_y"						"-100"
+	"blob_width"					"600"
+	"blob_height"					"600"
+
+	"knockback"						"120"
+
+	"kick_time"						"500"
+	"kick_amplitude"				"4"
+
+	"dv_time"						"100"
+}
+
+entityDef baron_shockwave_pound_attack {
+	"inherit"						"func_shockwave"
+
+	"start_on"						"1"
+	"height"						"50"
+	
+	"endsize"						"320"
+	"duration"						"450"
+
+	"def_player_damage"				"baron_pound_attack"
+}
+
+entityDef baron_pound_attack {
+	// melee specific parameters
+	"snd_hit"						"monster_demon_imp_melee_hit"
+	"kickDir"						"1 0 0"
+
+	// damage parameters
+	"damage"						"8"
+
+	"mtr_blob"						"leftSmack"
+	"blob_time"						"300"
+	"blob_x"						"140"
+	"blob_y"						"-100"
+	"blob_width"						"600"
+	"blob_height"						"600"
+
+	"knockback"						"100"
+
+	"kick_time"						"800"
+	"kick_amplitude"					"2"
+
+	"dv_time"						"400"
+}
+
+entityDef damage_baron_mouthFire {
+	"damage"						"40"
+	"smoke_wound_flesh"				"bloodwound.smoke"
+	"snd_flesh"						"bullet_impact_flesh"
+
+	"kickDir"						"1 0 0"
+
+	"mtr_blob"						"genericDamage"
+	"blob_time"						"300"
+	"blob_size"						"400"
+	"blob_offset_x"					"400"
+
+	"knockback"						"10"
+
+	"kick_time"						"400"
+	"kick_amplitude"				"1"
+
+	"dv_time"						"100"
+}
+
+entityDef damage_baron_mouthfireSplash {
+	"damage"						"25"
+	"radius"						"200"
+	"knockback"						"30"
+	"push"							"200"
+}
+
+
+entityDef projectile_baron_mouthfire {
+	"spawnclass"					"idProjectile"
+	"mins"							"-8 -8 -8"
+	"maxs"							"8 8 8"
+	"cone"							"3"
+	"model" 						"baron_mouth_fireball.prt"
+
+	"bindOnImpact"					"0"
+
+	"def_damage"					"damage_baron_mouthFire"
+	"def_splash_damage"				"damage_baron_mouthfireSplash"
+
+	"launchFromBarrel"				"1"
+	"health"						"0"					// amount of damage projectile can take if damaged (0 means it can't be destroyed)
+	"velocity"						"1200 0 0"			// how fast the projectile leaves the gun (or distance if fuse is 0)
+	"random_shader_spin"			"1"					// sets shader parm 5 which if appropriate the projectile shader will use this as an alternating spin
+	"angular_velocity"				"0 0 0"				// how the projectile is rotating when it leaves the gun
+	"thrust"						"0"					// the rate of acceleration (always in the direction of the projectiles model)
+	"thrust_start"					"0"					// when to start accelerating
+	"thrust_end"					"0"					// when to stop accelerating
+	"linear_friction"				"0"					// "air" friction
+	"angular_friction"				"0"
+	"contact_friction"				"0"
+	"bounce"						"0"					// how much speed a projectile retains when it bounces off of objects (coefficient of restitution).  0 means no bounce.
+	"mass"							"100"
+	"gravity"						"0"					// how much gravity affects the trajectory.  gravity direction is same as the entity that fired it.
+	"fuse"							"10"				// how long before the projectile is removed or self-detonates.  Use 0 for beam weapons (velocity == distance).
+
+	"detonate_on_fuse"				"1"					// whether projectile should detonate when it's fuse runs out
+	"detonate_on_death"				"1"					// whether projectile should detonate when it's "killed" (health runs out)
+	"detonate_on_world"				"1"					// whether projectile should detonate when it hits an obstacle
+	"detonate_on_actor"				"1"					// whether projectile should detonate when it hits a character in the game
+
+	"impact_damage_effect"			"1"					// whether projectile causes blood splats from characters that bleed
+	"impact_gib"					"1"					// whether projectile can gib a character or not (for example: bullets don't gib, but rockets do)
+
+	"mtr_detonate"					"textures/decals/ballburn01"
+	"decal_size"					"120" 
+
+	"smoke_fly"						"baron_mouth_fireball_trail.prt"	// particle effect while in the air
+	"smoke_detonate"				""					// particle effect when detonates
+	"smoke_residue"					""					// particle effect while in the air
+	"smoke_bounce"					""					// particle effect when bounces
+	"smoke_fuse"					""					// particle effect when removed from fuse expiring
+
+	"model_detonate"				"baron_mouth_fireball_exp.prt"
+
+	"mtr_light_shader"				"lights/impflyflash"
+	"light_color"					"0.830 0.620 0.330"
+	"light_radius"					"160"
+	"light_offset"					"-8 0 0"
+
+	"mtr_explode_light_shader"		"muzzleflash"
+	"explode_light_color"			"1 1 1"
+	"explode_light_radius"			"320"
+	"explode_light_fadetime"		"0.25"
+
+	"snd_fly"						"monster_demon_imp_fireball_flight"					// sound effect while in the air
+	"snd_explode"					"monster_demon_imp_fireball_explode"
+}

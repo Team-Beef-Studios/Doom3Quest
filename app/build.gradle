@@ -55,6 +55,7 @@ android {
         dependsOn 'Pack399LMPK4'
         dependsOn 'Pack399CDPK4'
         dependsOn 'Pack399D2PK4'
+        dependsOn 'Pack399TFPPK4'
     }
     task Pack399PK4(type: Zip) {
         from 'src/main/pk4/pak399/'
@@ -80,6 +81,17 @@ android {
         from 'src/main/pk4/pak399d2/'
         archiveFileName.set('pak399d2.pk4')
         getDestinationDirectory().set(file('src/main/assets/'))
+    }
+    task Pack399TFPPK4(type: Zip) {
+        from 'src/main/pk4/pak399tfp/'
+        archiveFileName.set('pak399tfp.pk4')
+        getDestinationDirectory().set(file('src/main/assets/'))
+    }
+    afterEvaluate {
+        if (project(':app').tasks.findByName('createDebugVariantModel'))
+            project(':app').createDebugVariantModel.dependsOn PackVrSupportPK4
+        if (project(':app').tasks.findByName('createReleaseVariantModel'))
+            project(':app').createReleaseVariantModel.dependsOn PackVrSupportPK4
     }
     preBuild.dependsOn PackVrSupportPK4
 }
