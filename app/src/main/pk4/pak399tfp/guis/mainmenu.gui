@@ -1,8 +1,7 @@
-windowDef Desktop {
-	rect		0 ,0 ,640 ,480
+windowDef Desktop { 
+	rect		0 ,0 ,640 ,480 
 	backcolor	0, 0, 0, 1
 	float selected	0
-	float roqon	0
 	float activate2 0
 	float doomme	1
 	menugui		1
@@ -14,51 +13,68 @@ windowDef Desktop {
 	float SelectedEpisode 1
 	float menuTransitioning 0
 
-	//cvar		"s_maxSoundsPerShader"            
-
-	onESC {
-		if ("desktop::doomme" == 0) {
-			showcursor "1" ;
-
-			set "idlogo::rect" "0 0 0 0" ;
-			set "nerveLogo::rect" "0 0 0 0" ;
-			resetTime "SoundrunMenu" "0" ; 
-			set "desktop::doomme" "1" ;
-			set "cmd" "play """ ;
+	onActivate {
+		if ("activate2" == 0) { 
+			set	"activate2" "1"; 
+			if ("gui::inGame" == 0) {
+				resetTime "SoundrunMenu" "0";
+			}			
+			if ("gui::inGame" >= 1) {
+				resetTime "SoundrunInGame" "0";
+				set "desktop::doomme" "1";
+			}
 		}
+	}
 
-		//Close the advanced options widow
-		//set "AdvancedOptionsWin::rect" "0 0 640 0" ;
+	windowDef SoundrunMenu {
+		rect		0,0,0,0
+		visible		0
+		notime		1
+
+		onTime 0 {
 		
-		set "DeleteGameWindowHolder::visible" "0" ;
-
-		set "cmd" "close" ;
-	}
-
-	onActivate
-	{
-		resetTime "SoundrunMenu" "0" ;
-	} 
-
-	onNamedEvent NoIntro
-	{   
-	 
-	}
-
-	onTime 0
-	{		
-		set "Desktop::menuTransitioning" "1";
-
-		if("Desktop::menu" == 1 && "Desktop::MenuUp" == "0")
-		{
-			transition "Mars4::rect" "0 -100 1040 1310" "0 -180 1040 1310" "5000" ".2" ".6";			
+		}
+		onTime 10 {
+			set	"cmd"	"music guisounds_menu2" ;
+			set "cmd"	"checkKeys" ;
+		}
+		onTime 52000 {
+			if ("gui::inGame" == 0) {
+				resetTime "10";
+			}
 		}
 	}
+	windowDef SoundrunInGame {
+		rect		0,0,0,0
+		visible		0
+		notime		1
 
-	onTime 500
-	{
-		set "Desktop::menuTransitioning" "0";
+		onTime 0 {
+			set	"cmd"	"music guisounds_menuingame";
+			
+			set "LogoDown::logo" "1";
+			set "BlackFade::rect" "0 0 640 0";
+			transition "MarsRender::viewOffset" "-133 0 0 0" "-128 0 0 0" "700" "0" "1";
+			set "MarsRender::lightOrigin" "-128 10 150 0";
+		}
+	}	
+
+	//mars model
+	renderDef MarsRender {
+		rect 		0, 20, 640, 430
+		visible		1
+		backcolor 	0, 0, 0, 0.4
+		model 		"models/wipes/planet2.lwo"
+		needsRender 	1
+		modelRotate 	0, time * 0.001, 0, 0
+		modelOrigin 	-80, 0, -25, 0
+		viewOffset 	-300, -28, 0, 0
+		lightOrigin 	0, 0, 0, 0
+		lightColor 	1, 1, 1, 1
+		notime 		1
+		definevec4	"$marsRotate"	0, time * 0.001, 0, 0
 	}
+
 
 	windowDef Mars
 	{
@@ -118,6 +134,12 @@ windowDef Desktop {
 		}
 	}
 
+	windowDef StartBlackFade {
+		rect 0,0,640,480
+		backcolor 0,0,0,0
+		noevents	1
+	}
+	
 	#include "guis/mainmenu/MainButtons.pd"
 	#include "guis/mainmenu/NewGameMenu.pd"	
 	#include "guis/mainmenu/LoadGameMenu.pd"
@@ -125,37 +147,5 @@ windowDef Desktop {
 	#include "guis/mainmenu/SaveGameMenu.pd"
 
 	#include "guis/mainmenu/ExitGame.pd"
-
-	
-	windowDef SoundrunMenu {
-		rect		0,0,0,0
-		visible		0
-		notime		1
-
-		onTime 0 {
-		
-		}
-		onTime 10 {
-			set	"cmd"	"music guisounds_menu2" ;
-			set "cmd"	"checkKeys" ;
-		}
-		onTime 52000 {
-			if ("gui::inGame" == 0) {
-				resetTime "10";
-			}
-		}
-	}
-	windowDef SoundrunInGame {
-		rect		0,0,0,0
-		visible		0
-		notime		1
-
-		onTime 0 {
-			set	"cmd"	"music guisounds_menuingame" ;
-
-			
-		}
-	}
-	
 	#include "guis/mainmenu/EndGame.pd"
 }
