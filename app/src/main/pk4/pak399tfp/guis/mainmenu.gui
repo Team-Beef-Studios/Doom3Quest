@@ -8,7 +8,7 @@ windowDef Desktop {
 	float prevMenu 0
 	float menu 0
 	float inModal 0
-	float EpisodeCount 1
+	float EpisodeCount 3
 	float MenuUp 0
 	float SelectedEpisode 1
 	float menuTransitioning 0
