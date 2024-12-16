@@ -202,7 +202,7 @@ namespace map_e1m4_4
 
 		lee_got_home = 1;
 
-		$box_notes_item.setKey("call_exit", NULL);
+		$box_notes_item.setKey("call_exit", 0);
 		$box_notes_item.setKey("inspect_exit_delay", 0);
 		//$box_notes_item.setKey("click_item", "1");
 		//$box_notes_item.setKey("clickonce", "0");
@@ -326,7 +326,7 @@ namespace map_e1m4_4
 
 		$door_bathroom_mover.startSoundShader("sound/shav/e1m4_4/door_close.ogg", SND_CHANNEL_ANY);
 		
-		$box_notes_item.setKey("call_exit", NULL);
+		$box_notes_item.setKey("call_exit", 0);
 		$box_notes_item.setKey("inspect_exit_delay", 0);
 		$box_notes_item.setKey("click_item", "1");
 		$box_notes_item.setKey("clickonce", "0");

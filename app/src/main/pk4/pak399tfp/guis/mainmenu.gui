@@ -1,0 +1,161 @@
+windowDef Desktop {
+	rect		0 ,0 ,640 ,480
+	backcolor	0, 0, 0, 1
+	float selected	0
+	float roqon	0
+	float activate2 0
+	float doomme	1
+	menugui		1
+	float prevMenu 0
+	float menu 0
+	float inModal 0
+	float EpisodeCount 1
+	float MenuUp 0
+	float SelectedEpisode 1
+	float menuTransitioning 0
+
+	//cvar		"s_maxSoundsPerShader"            
+
+	onESC {
+		if ("desktop::doomme" == 0) {
+			showcursor "1" ;
+
+			set "idlogo::rect" "0 0 0 0" ;
+			set "nerveLogo::rect" "0 0 0 0" ;
+			resetTime "SoundrunMenu" "0" ; 
+			set "desktop::doomme" "1" ;
+			set "cmd" "play """ ;
+		}
+
+		//Close the advanced options widow
+		//set "AdvancedOptionsWin::rect" "0 0 640 0" ;
+		
+		set "DeleteGameWindowHolder::visible" "0" ;
+
+		set "cmd" "close" ;
+	}
+
+	onActivate
+	{
+		resetTime "SoundrunMenu" "0" ;
+	} 
+
+	onNamedEvent NoIntro
+	{   
+	 
+	}
+
+	onTime 0
+	{		
+		set "Desktop::menuTransitioning" "1";
+
+		if("Desktop::menu" == 1 && "Desktop::MenuUp" == "0")
+		{
+			transition "Mars4::rect" "0 -100 1040 1310" "0 -180 1040 1310" "5000" ".2" ".6";			
+		}
+	}
+
+	onTime 500
+	{
+		set "Desktop::menuTransitioning" "0";
+	}
+
+	windowDef Mars
+	{
+		rect 0, 0, 640, 480
+		matcolor .1,.1,.7,.2
+		matscalex 2
+		matscaley 2
+		background "guis/assets/ballg.jpg"
+	}
+
+	windowDef Mars3
+	{
+		rect -100, -50, 840, 680
+		matcolor .1,.7,.1,.1
+		matscalex 3
+		matscaley 1
+		background "guis/assets/ballg.jpg"
+	}
+
+	windowDef Mars4
+	{
+		//rect -75, -415, 1040, 1310
+		rect 0, -100, 1040, 1310
+		matcolor 1,1,1,1
+		//matscalex 1
+		//matscaley 1
+		background "guis/assets/phobos_sky1_up.tga"
+		//rotate 10
+		
+		onTime 0
+		{
+			//transition "Mars4::rotate"	"0" "360" "2000" ;
+			//transition "Mars4::rect" "0 -180 1040 1310" "5 -10 1040 1310" "10000" ".2" ".2";
+		}		
+	}
+
+	windowDef Mars2	
+	{
+		rect 0, -180, 1040, 1310
+		background "guis/assets/ballg.jpg"
+		matcolor .1,.1,.1,.1
+		noevents 1
+
+		onTime 0
+		{
+			transition "matcolor" "0.1 0.1 0.1 .1" "0.2 0.1 0.1 .2" "2000";
+		}	
+		
+		onTime 2000
+		{
+			transition "matcolor" "0.2 0.1 0.1 .2" "0.1 0.1 0.1 .1" "2000";
+		}
+
+		onTime 4000
+		{
+			resetTime "0";
+		}
+	}
+
+	#include "guis/mainmenu/MainButtons.pd"
+	#include "guis/mainmenu/NewGameMenu.pd"	
+	#include "guis/mainmenu/LoadGameMenu.pd"
+	#include "guis/mainmenu/OptionsMenu.pd"
+	#include "guis/mainmenu/SaveGameMenu.pd"
+
+	#include "guis/mainmenu/ExitGame.pd"
+
+	
+	windowDef SoundrunMenu {
+		rect		0,0,0,0
+		visible		0
+		notime		1
+
+		onTime 0 {
+		
+		}
+		onTime 10 {
+			set	"cmd"	"music guisounds_menu2" ;
+			set "cmd"	"checkKeys" ;
+		}
+		onTime 52000 {
+			if ("gui::inGame" == 0) {
+				resetTime "10";
+			}
+		}
+	}
+	windowDef SoundrunInGame {
+		rect		0,0,0,0
+		visible		0
+		notime		1
+
+		onTime 0 {
+			set	"cmd"	"music guisounds_menuingame" ;
+
+			
+		}
+	}
+	
+	#include "guis/mainmenu/EndGame.pd"
+}
