@@ -18,7 +18,7 @@ windowDef Desktop {
 			forecolor 1, .5, .25, 1
 			text "gui::subtitle1_name"
 			textalign 1
-			textscale 0.275
+			textscale 0.2
 			shadow 1
 			font "fonts/an"
 		}
@@ -29,7 +29,7 @@ windowDef Desktop {
 			forecolor .5, .75, 1, 1		
 			text "gui::subtitle1_text"
 			textalign 1
-			textscale 0.275
+			textscale 0.2
 			shadow 1
 			font "fonts/an"
 		}
@@ -49,7 +49,7 @@ windowDef Desktop {
 			forecolor 1, .5, .25, 1
 			text "gui::subtitle1_name"
 			textalign 1
-			textscale 0.275
+			textscale 0.2
 			shadow 1
 			font "fonts/an"
 		}
@@ -60,7 +60,7 @@ windowDef Desktop {
 			forecolor .5, .75, 1, 1		
 			text "gui::subtitle1_text"
 			textalign 1
-			textscale 0.275
+			textscale 0.2
 			shadow 1
 			font "fonts/an"
 		}
@@ -80,7 +80,7 @@ windowDef Desktop {
 			forecolor 1, .5, .25, 1
 			text "gui::subtitle1_name"
 			textalign 1
-			textscale 0.275
+			textscale 0.2
 			shadow 1
 			font "fonts/an"
 		}
@@ -91,7 +91,7 @@ windowDef Desktop {
 			forecolor .5, .75, 1, 1		
 			text "gui::subtitle1_text"
 			textalign 1
-			textscale 0.275
+			textscale 0.2
 			shadow 1
 			font "fonts/an"
 		}
@@ -111,7 +111,7 @@ windowDef Desktop {
 			forecolor 1, .5, .25, 1
 			text "gui::subtitle1_name"
 			textalign 1
-			textscale 0.275
+			textscale 0.2
 			shadow 1
 			font "fonts/an"
 		}
@@ -122,7 +122,7 @@ windowDef Desktop {
 			forecolor .5, .75, 1, 1		
 			text "gui::subtitle1_text"
 			textalign 1
-			textscale 0.275
+			textscale 0.2
 			shadow 1
 			font "fonts/an"
 		}
