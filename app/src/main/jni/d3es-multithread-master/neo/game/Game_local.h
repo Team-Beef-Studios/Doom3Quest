@@ -110,7 +110,7 @@ typedef struct entityState_s {
 typedef struct snapshot_s {
 	int						sequence;
 	entityState_t *			firstEntityState;
-	int						pvs[ENTITY_PVS_SIZE];
+	int						pvs[ENTITY_PVS_SIZE_NEW];
 	struct snapshot_s *		next;
 } snapshot_t;
 
@@ -299,8 +299,8 @@ public:
 	idDict					userInfo[MAX_CLIENTS];	// client specific settings
 	usercmd_t				usercmds[MAX_CLIENTS];	// client input commands
 	idDict					persistentPlayerInfo[MAX_CLIENTS];
-	idEntity *				entities[MAX_GENTITIES];// index to entities
-	int						spawnIds[MAX_GENTITIES];// for use in idEntityPtr
+	idEntity *				entities[MAX_GENTITIES_NEW];// index to entities
+	int						spawnIds[MAX_GENTITIES_NEW];// for use in idEntityPtr
 	int						firstFreeIndex;			// first free index in the entities array
 	int						num_entities;			// current number <= MAX_GENTITIES
 	idHashIndex				entityHash;				// hash table to quickly find entities by name
@@ -611,8 +611,8 @@ private:
 
 	idList<int>				clientDeclRemap[MAX_CLIENTS][DECL_MAX_TYPES];
 
-	entityState_t *			clientEntityStates[MAX_CLIENTS][MAX_GENTITIES];
-	int						clientPVS[MAX_CLIENTS][ENTITY_PVS_SIZE];
+	entityState_t *			clientEntityStates[MAX_CLIENTS][MAX_GENTITIES_NEW];
+	int						clientPVS[MAX_CLIENTS][ENTITY_PVS_SIZE_NEW];
 	snapshot_t *			clientSnapshots[MAX_CLIENTS];
 	idBlockAlloc<entityState_t,256>entityStateAllocator;
 	idBlockAlloc<snapshot_t,64>snapshotAllocator;
@@ -620,8 +620,8 @@ private:
 	idEventQueue			eventQueue;
 	idEventQueue			savedEventQueue;
 
-	idStaticList<spawnSpot_t, MAX_GENTITIES> spawnSpots;
-	idStaticList<idEntity *, MAX_GENTITIES> initialSpots;
+	idStaticList<spawnSpot_t, MAX_GENTITIES_NEW> spawnSpots;
+	idStaticList<idEntity *, MAX_GENTITIES_NEW> initialSpots;
 	int						currentInitialSpot;
 
 	idDict					newInfo;

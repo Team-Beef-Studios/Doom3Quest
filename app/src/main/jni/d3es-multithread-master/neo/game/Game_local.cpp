@@ -244,7 +244,7 @@ void idGameLocal::Clear( void ) {
 	locationEntities = NULL;
 	smokeParticles = NULL;
 	editEntities = NULL;
-	entityHash.Clear( 1024, MAX_GENTITIES );
+	entityHash.Clear( 1024, MAX_GENTITIES_NEW );
 	inCinematic = false;
 	cinematicSkipTime = 0;
 	cinematicStopTime = 0;

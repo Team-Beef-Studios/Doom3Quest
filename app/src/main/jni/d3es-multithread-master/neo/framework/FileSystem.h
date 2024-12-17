@@ -262,6 +262,8 @@ public:
 	virtual bool			HasD3LE( void ) = 0;
 							// are we using D3XP content ( through a real d3xp run or through a double mod )
 	virtual bool			RunningD3XP( void ) = 0;
+							// are we using Phobos content
+	virtual bool			RunningPhobos( void ) = 0;
 
 							// don't use for large copies - allocates a single memory block for the copy
 	virtual void			CopyFile( const char *fromOSPath, const char *toOSPath ) = 0;

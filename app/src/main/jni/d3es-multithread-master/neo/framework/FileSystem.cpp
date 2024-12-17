@@ -375,6 +375,7 @@ public:
 	virtual bool			HasD3XP( void );
 	virtual bool			HasD3LE( void );
 	virtual bool			RunningD3XP( void );
+	virtual bool			RunningPhobos( void );
 	virtual void			CopyFile( const char *fromOSPath, const char *toOSPath );
 	virtual int				ValidateDownloadPakForChecksum( int checksum, char path[ MAX_STRING_CHARS ] );
 	virtual idFile *		MakeTemporaryFile( void );
@@ -3821,6 +3822,19 @@ bool idFileSystemLocal::RunningD3XP( void ) {
 		return true;
 	}
 	return false;
+}
+
+/*
+===============
+idFileSystemLocal::RunningD3XP
+===============
+*/
+bool idFileSystemLocal::RunningPhobos( void ) {
+    if ( !idStr::Icmp( fs_game.GetString(), "tfphobos" ) ||
+         !idStr::Icmp( fs_game_base.GetString(), "tfphobos" ) ) {
+        return true;
+    }
+    return false;
 }
 
 /*
