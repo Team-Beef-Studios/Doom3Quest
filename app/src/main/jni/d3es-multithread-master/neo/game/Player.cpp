@@ -15727,10 +15727,16 @@ void idPlayer::CalculateRenderView( void ) {
 	}
 	memset( renderView, 0, sizeof( *renderView ) );
 
-	//Lubos: force flat cinematics in Phobos
+	//Lubos BEGIN
 	if (fileSystem->RunningPhobos()) {
+		//force flat screen
 		vr_cinematics.SetInteger(2);
+		//flashlight behavior
+		if ( !pVRClientInfo || !pVRClientInfo->weapon_stabilised ) {
+			commonVr->currentFlashlightMode = FLASHLIGHT_HAND;
+		}
 	}
+	//Lubos END
 
 	// copy global shader parms
 	for( i = 0; i < MAX_GLOBAL_SHADER_PARMS; i++ ) {
