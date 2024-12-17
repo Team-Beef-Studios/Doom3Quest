@@ -421,8 +421,16 @@ typedef struct statement_s {
 	idVarDef		*a;
 	idVarDef		*b;
 	idVarDef		*c;
-	unsigned short	linenumber;
-	unsigned short	file;
+	unsigned short linenumber;
+	unsigned short file;
+	unsigned short flags; // DG: added this for ugly hacks
+	enum {
+		// op is OP_OBJECTCALL and when the statement was created the
+		// function/method implementation hasn't been parsed yet (only the
+		// declaration/prototype) see idCompiler::EmitFunctionParms() and
+		// idProgram::CalculateChecksum()
+		FLAG_OBJECTCALL_IMPL_NOT_PARSED_YET = 1,
+	};
 } statement_t;
 
 /***********************************************************************
@@ -474,8 +482,7 @@ public:
 	// save games
 	void										Save( idSaveGame *savefile ) const;
 	bool										Restore( idRestoreGame *savefile );
-	int											CalculateChecksum( void ) const;		// Used to insure program code has not
-																						//    changed between savegames
+	int											CalculateChecksum(bool forOldSavegame) const;//    changed between savegames
 
 	void										Startup( const char *defaultScript );
 	void										Restart( void );
