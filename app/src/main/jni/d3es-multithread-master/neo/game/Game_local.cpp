@@ -533,7 +533,12 @@ void idGameLocal::SaveGame( idFile *f ) {
 		f->ForceFlush();
 	}
 
-	savegame.WriteBuildNumber( BUILD_NUMBER );
+	if (fileSystem->RunningPhobos()) {
+		savegame.WriteBuildNumber( DHEWM3_BUILD_NUMBER );
+		savegame.WriteInt( INTERNAL_SAVEGAME_VERSION );  // to be independent of BUILD_NUMBER
+	} else {
+		savegame.WriteBuildNumber( BUILD_NUMBER );
+	}
 
 	// go through all entities and threads and add them to the object list
 	for( i = 0; i < MAX_GENTITIES; i++ ) {
@@ -1783,6 +1788,19 @@ bool idGameLocal::InitFromSaveGame( const char *mapName, idRenderWorld *renderWo
     idRestoreGame savegame( saveGameFile );
 
 	savegame.ReadBuildNumber();
+
+	// DG: I enhanced the information in savegames a bit
+	if (fileSystem->RunningPhobos() && savegame.GetBuildNumber() >= 1305) {
+		savegame.ReadInternalSavegameVersion();
+		if (savegame.GetInternalSavegameVersion() > INTERNAL_SAVEGAME_VERSION) {
+			Warning("Savegame from newer dhewm3 version, don't know how to load! "
+					"(its version is %d, only up to %d supported)",
+					savegame.GetInternalSavegameVersion(), INTERNAL_SAVEGAME_VERSION);
+			return false;
+		}
+	}
+	// DG end
+
 
     // Create the list of all objects in the game
 	savegame.CreateObjects();

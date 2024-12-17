@@ -1637,6 +1637,9 @@ idPlayer::idPlayer() {
 
 	selfSmooth				= false;
 
+	itemSystemCallExit		= "";
+	nextTriggerTime			= 0;
+
     ResetControllerShake();
     blink = false;
 }
@@ -1869,6 +1872,7 @@ void idPlayer::Init( void ) {
 	focusGUIent				= NULL;
 	focusUI					= NULL;
 	focusCharacter			= NULL;
+	focusClickable			= NULL;
 	talkCursor				= 0;
 	focusVehicle			= NULL;
 
@@ -2133,6 +2137,20 @@ void idPlayer::Spawn( void ) {
 
 		objectiveSystem = uiManager->FindGui( "guis/pda.gui", true, false, true );
 		objectiveSystemOpen = false;
+		objectiveSystemOpenTime = 0;
+
+		itemSystem = fileSystem->RunningPhobos() ? uiManager->FindGui("guis/itemsystem.gui", true, false, true) : NULL;
+		itemSystemOpen = false;
+
+		textMessageSystem = fileSystem->RunningPhobos() ? uiManager->FindGui("guis/textmessagesystem.gui", true, false, true) : NULL;
+		textMessageSystemOpen = false;
+
+		subtitleSystem = fileSystem->RunningPhobos() ? uiManager->FindGui("guis/subtitles.gui", true, false, true) : NULL;
+		subtitleSystemOpen = false;
+
+		cameraGuiSystem = NULL;
+		cameraGuiSystemOpen = false;
+		cameraGuiCamName = "";
 	}
 
 	SetLastHitTime( 0 );
@@ -2323,6 +2341,8 @@ void idPlayer::Spawn( void ) {
     bloomEnabled			= false;
     bloomSpeed				= 1;
     bloomIntensity			= -0.01f;
+    itemSystemCallExit		= "";
+    nextTriggerTime			= 0;
 
     OrientHMDBody();
 }
@@ -2449,6 +2469,18 @@ void idPlayer::Save( idSaveGame *savefile ) const {
 	savefile->WriteUserInterface( hud, false );
 	savefile->WriteUserInterface( objectiveSystem, false );
 	savefile->WriteBool( objectiveSystemOpen );
+	if (fileSystem->RunningPhobos()) {
+		savefile->WriteInt(objectiveSystemOpenTime);
+		savefile->WriteUserInterface(itemSystem, false);
+		savefile->WriteBool(itemSystemOpen);
+		savefile->WriteUserInterface(textMessageSystem, false);
+		savefile->WriteBool(textMessageSystemOpen);
+		savefile->WriteUserInterface(subtitleSystem, false);
+		savefile->WriteBool(subtitleSystemOpen);
+		savefile->WriteUserInterface(cameraGuiSystem, false);
+		savefile->WriteBool(cameraGuiSystemOpen);
+		savefile->WriteString(cameraGuiCamName);
+	}
 
 	savefile->WriteInt( weapon_soulcube );
 	savefile->WriteInt( weapon_pda );
@@ -2643,6 +2675,9 @@ void idPlayer::Save( idSaveGame *savefile ) const {
 	savefile->WriteObject( focusGUIent );
 	// can't save focusUI
 	savefile->WriteObject( focusCharacter );
+	if (fileSystem->RunningPhobos()) {
+		savefile->WriteObject(focusClickable);
+	}
 	savefile->WriteInt( talkCursor );
 	savefile->WriteInt( focusTime );
 	savefile->WriteObject( focusVehicle );
@@ -2696,6 +2731,11 @@ void idPlayer::Save( idSaveGame *savefile ) const {
     savefile->WriteBool(bloomEnabled);
     savefile->WriteFloat(bloomSpeed);
     savefile->WriteFloat(bloomIntensity);
+
+    if (fileSystem->RunningPhobos()) {
+        savefile->WriteString(itemSystemCallExit);
+        savefile->WriteInt(nextTriggerTime);
+    }
 
     savefile->WriteObject( flashlight );
     savefile->WriteInt( flashlightBattery );
@@ -2825,6 +2865,18 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 	savefile->ReadUserInterface(hud);
 	savefile->ReadUserInterface(objectiveSystem);
 	savefile->ReadBool(objectiveSystemOpen);
+	if (fileSystem->RunningPhobos()) {
+		savefile->ReadInt(objectiveSystemOpenTime);
+		savefile->ReadUserInterface(itemSystem);
+		savefile->ReadBool(itemSystemOpen);
+		savefile->ReadUserInterface(textMessageSystem);
+		savefile->ReadBool(textMessageSystemOpen);
+		savefile->ReadUserInterface(subtitleSystem);
+		savefile->ReadBool(subtitleSystemOpen);
+		savefile->ReadUserInterface(cameraGuiSystem);
+		savefile->ReadBool(cameraGuiSystemOpen);
+		savefile->ReadString(cameraGuiCamName);
+	}
 
 	weapon_none = 0;
 	savefile->ReadInt( weapon_soulcube );
@@ -3051,6 +3103,9 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 	// can't save focusUI
 	focusUI = NULL;
 	savefile->ReadObject(reinterpret_cast<idClass *&>( focusCharacter ));
+	if (fileSystem->RunningPhobos()) {
+		savefile->ReadObject(reinterpret_cast<idClass *&>(focusClickable));
+	}
 	savefile->ReadInt(talkCursor);
 	savefile->ReadInt(focusTime);
 	savefile->ReadObject(reinterpret_cast<idClass *&>( focusVehicle ));
@@ -3134,6 +3189,18 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
         savefile->ReadBool(bloomEnabled);
         savefile->ReadFloat(bloomSpeed);
         savefile->ReadFloat(bloomIntensity);
+    }
+
+    if (fileSystem->RunningPhobos()) {
+        savefile->ReadString(itemSystemCallExit);
+        savefile->ReadInt(nextTriggerTime);
+
+        // DG: workaround for lingering messages that are shown forever after loading a savegame
+        //     (one way to get them is saving again, while the message from first save is still
+        //      shown, and then load)
+        if (hud) {
+            hud->SetStateString("message", "");
+        }
     }
 
     // flashlight
@@ -3936,6 +4003,11 @@ void idPlayer::UpdateHudAmmo( idUserInterface *_hud, int hand ) {
 	_hud->SetStateString("player_bloodstone_ammo", va("%i", bloodstoneAmmo));
 	_hud->HandleNamedEvent("bloodstoneAmmoUpdate");
 
+	if (fileSystem->RunningPhobos()) {
+		idWeapon* weapon = GetWeaponInHand( vr_weaponHand.GetInteger() );
+		_hud->SetStateString("player_clip_size", va("%i", weapon->ClipSize() ? weapon->ClipSize() : 1));
+	}
+
 	_hud->HandleNamedEvent( "updateAmmo" );
 }
 
@@ -4057,7 +4129,16 @@ void idPlayer::DrawHUD( idUserInterface *_hud ) {
     }
     // Koz end
 
-    if ( !hands[vr_weaponHand.GetInteger()].weapon || influenceActive != INFLUENCE_NONE || privateCameraView || gameLocal.GetCamera() || !_hud || !g_showHud.GetBool() ) {
+    if (fileSystem->RunningPhobos()) {
+        idWeapon* weapon = GetWeaponInHand( vr_weaponHand.GetInteger() );
+        if (!weapon || (influenceActive != INFLUENCE_NONE && influenceActive <= INFLUENCE_LEVEL3) ||
+            privateCameraView || (gameLocal.GetCamera() && !gameLocal.GetCamera()->spawnArgs.GetInt("AllowClickers")) ||
+            !_hud || !g_showHud.GetBool()) {
+            return;
+        }
+        _hud->SetStateString("influenceVisible", va("%i", influenceActive == INFLUENCE_NONE));
+        _hud->SetStateString("pickupsVisible", va("%i", influenceActive == INFLUENCE_NONE));
+    } else if ( !hands[vr_weaponHand.GetInteger()].weapon || influenceActive != INFLUENCE_NONE || privateCameraView || gameLocal.GetCamera() || !_hud || !g_showHud.GetBool() ) {
 		return;
 	}
 
@@ -4529,7 +4610,7 @@ void idPlayer::UpdateConditions( void ) {
 	// minus the push velocity to avoid playing the walking animation and sounds when riding a mover
 	velocity = physicsObj.GetLinearVelocity() - physicsObj.GetPushedLinearVelocity();
 
-	if ( influenceActive ) {
+	if ( fileSystem->RunningPhobos() ? influenceActive == INFLUENCE_LEVEL2 : influenceActive ) {
 		AI_FORWARD		= false;
 		AI_BACKWARD		= false;
 		AI_STRAFE_LEFT	= false;
@@ -7062,7 +7143,11 @@ idPlayer::ActiveGui
 ===============
 */
 idUserInterface *idPlayer::ActiveGui( void ) {
-	if ( objectiveSystemOpen ) {
+	if (fileSystem->RunningPhobos()) {
+		if (itemSystemOpen) {
+			return itemSystem;
+		}
+	} else if ( objectiveSystemOpen ) {
 		return objectiveSystem;
 	}
 
@@ -7308,6 +7393,150 @@ void idPlayer::Weapon_NPC( void ) {
 }
 
 /*
+===============
+idPlayer::ClickableCallScript
+===============
+*/
+bool idPlayer::ClickableCallScript(idStr funcname, int delay = 0) {
+  function_t *scriptFunction;
+  idThread *thread;
+
+  bool called = false;
+
+  if (funcname.Length()) {
+    scriptFunction = gameLocal.program.FindFunction(funcname);
+    if (scriptFunction == NULL) {
+      gameLocal.Warning("clickable calls unknown function '%s'",
+                        funcname.c_str());
+    }
+  } else {
+    scriptFunction = NULL;
+  }
+
+  if (scriptFunction) {
+    called = true;
+    thread = new idThread(scriptFunction);
+    thread->DelayedStart(delay);
+  }
+
+  return called;
+}
+
+/*
+==============
+idPlayer::ToggleItemSystem
+==============
+*/
+void idPlayer::ToggleItemSystem(void) {
+  if (itemSystem == NULL) {
+    return;
+  }
+
+  if (focusClickable && focusClickable->spawnArgs.GetInt("inspect_delay")) {
+    ClickableCallScript(
+        focusClickable->spawnArgs.GetString("inspect_delay_call"));
+    return;
+  }
+
+  if (!itemSystemOpen) {
+    if (focusClickable == NULL) {
+      return;
+    }
+
+    int numItems = focusClickable->spawnArgs.GetInt("click_inspect_numitems");
+
+    itemSystem->SetStateInt("numitems", numItems);
+    itemSystem->SetStateFloat("aspectCorrection",
+                              gameLocal.CalculateUIAspectCorrection());
+
+    itemSystemCallExit = focusClickable->spawnArgs.GetString("call_exit");
+
+    for (int i = 1; i <= numItems; i++) {
+      const char *itemTexPath =
+          focusClickable->spawnArgs.GetString(va("click_inspect_item%i", i));
+      const char *itemSeenScript = focusClickable->spawnArgs.GetString(
+          va("click_inspect_item%i_seen", i));
+      itemSystem->SetStateString(va("item%i", i), itemTexPath);
+      itemSystem->SetStateString(va("item%i_seen", i), itemSeenScript);
+    }
+
+    itemSystem->Activate(true, gameLocal.time);
+  } else {
+    ClickableCallScript(itemSystemCallExit);
+    itemSystemCallExit.Clear();
+    itemSystem->Activate(false, gameLocal.time);
+  }
+  itemSystemOpen ^= 1;
+}
+
+/*
+===============
+idPlayer::Weapon_Clickable
+===============
+*/
+void idPlayer::Weapon_Clickable(void) {
+  if (focusClickable == NULL) {
+    return;
+  }
+
+  if (hands[ vr_weaponHand.GetInteger() ].idealWeapon != hands[ vr_weaponHand.GetInteger() ].currentWeapon) {
+    Weapon_Combat();
+  }
+  StopFiring();
+  hands[ vr_weaponHand.GetInteger() ].weapon.GetEntity()->LowerWeapon();
+
+  if ((usercmd.buttons & BUTTON_ATTACK) && !(oldButtons & BUTTON_ATTACK)) {
+    buttonMask |= BUTTON_ATTACK;
+
+    if (nextTriggerTime > gameLocal.time) {
+      // can't retrigger until the wait is over
+      return;
+    }
+
+    bool clicked = false;
+    bool callSuccess =
+        ClickableCallScript(focusClickable->spawnArgs.GetString("call"));
+    int clickOnce = focusClickable->spawnArgs.GetInt("clickonce");
+    int clickInspect = focusClickable->spawnArgs.GetInt("click_inspect");
+
+    if (clickInspect) {
+      ToggleItemSystem();
+    }
+
+    if (callSuccess) {
+      clicked = true;
+    }
+
+    idStr targetname = focusClickable->spawnArgs.GetString("target");
+    if (targetname) {
+      clicked = true;
+      focusClickable->ActivateTargets(this);
+    }
+
+    if (!clicked) {
+      return;
+    }
+
+    // don't allow it to trigger twice in a single frame
+    nextTriggerTime = gameLocal.time + 1;
+    // add one second delay until we can click again
+    nextTriggerTime += SEC2MS(1);
+
+    if (clickOnce) {
+      if (clickOnce > 1) {
+        focusClickable->spawnArgs.SetInt("clickonce", clickOnce--);
+      } else {
+        focusClickable->spawnArgs.SetInt("click_item", 0);
+        focusClickable = NULL;
+        if (hud) {
+          hud->HandleNamedEvent("hideNPC");
+        }
+      }
+    }
+  }
+}
+
+/*
 ==================
 idPlayer::Event_WeaponAvailable
 ==================
@@ -7360,7 +7589,7 @@ idPlayer::Weapon_GUI
 */
 void idPlayer::Weapon_GUI( void ) {
 
-	if ( !objectiveSystemOpen ) {
+	if ( !objectiveSystemOpen || (fileSystem->RunningPhobos() && !itemSystemOpen) ) {
         if( hands[ 0 ].idealWeapon != hands[ 0 ].currentWeapon || hands[ 1 ].idealWeapon != hands[ 1 ].currentWeapon )
         {
             Weapon_Combat();
@@ -7470,6 +7699,8 @@ void idPlayer::UpdateWeapon( void ) {
 		Weapon_GUI();
 	} else	if ( focusCharacter && ( focusCharacter->health > 0 ) ) {
 		Weapon_NPC();
+	} else if ( focusClickable ) {
+		Weapon_Clickable();
 	} else {
 		Weapon_Combat();
 	}
@@ -7489,6 +7720,10 @@ void idPlayer::UpdateWeapon( void ) {
     {
         for( int h = 0; h < 2; h++ )
             hands[ h ].weapon->GetRenderEntity()->suppressShadowInViewID = entityNumber + 1;
+    }
+
+    if (fileSystem->RunningPhobos() && influenceActive > INFLUENCE_LEVEL3) {
+        hands[ vr_weaponHand.GetInteger() ].weapon.GetEntity()->EnterCinematic();
     }
 
     // update weapon state, particles, dlights, etc
@@ -8116,6 +8351,8 @@ bool idPlayer::HandleSingleGuiCommand( idEntity *entityGui, idLexer *src ) {
 	if ( token.Icmp( "close" ) == 0 ) {
 		if ( objectiveSystem && objectiveSystemOpen ) {
 			TogglePDA(1 - vr_weaponHand.GetInteger());
+		} else if (itemSystem && itemSystemOpen) {
+			ToggleItemSystem();
 		}
 	}
 
@@ -8276,6 +8513,7 @@ Clears the focus cursor
 ================
 */
 void idPlayer::ClearFocus( void ) {
+	focusClickable	= NULL;
 	focusCharacter	= NULL;
 	focusGUIent		= NULL;
 	focusUI			= NULL;
@@ -8303,6 +8541,7 @@ void idPlayer::UpdateFocus( void ) {
 	idEntity	*ent;
 	idUserInterface *oldUI;
 	idAI		*oldChar;
+	idEntity	*oldClickable;
 	int			oldTalkCursor;
 	int			i, j;
 	idVec3		start, end;
@@ -8341,9 +8580,11 @@ void idPlayer::UpdateFocus( void ) {
 
 	scanRange = 50.0f;
 
-	if ( gameLocal.inCinematic  || commonVr->thirdPersonMovement ) {
-		return;
-	}
+	if ( !fileSystem->RunningPhobos() || !(gameLocal.GetCamera() && gameLocal.GetCamera()->spawnArgs.GetInt("AllowClickers")) ) {
+		if ( gameLocal.inCinematic  || commonVr->thirdPersonMovement ) {
+			return;
+    	}
+    }
 
 	//check for PDA interaction.
 	//if the PDA is being interacted with, there is no need to check for other guis
@@ -8364,8 +8605,8 @@ void idPlayer::UpdateFocus( void ) {
 	oldFocus		= focusGUIent;
 	oldUI			= focusUI;
 	oldChar			= focusCharacter;
+	oldClickable	= focusClickable;
 	oldTalkCursor	= talkCursor;
-	//oldVehicle = focusVehicle;
 
 	if ( focusTime <= gameLocal.time  || commonVr->teleportButtonCount != 0) {
 		ClearFocus();
@@ -8379,11 +8620,15 @@ void idPlayer::UpdateFocus( void ) {
 		return;
 	}
 
-	/*
 	start = GetEyePosition();
 	end = start + viewAngles.ToForward() * 80.0f;
-	*/
-	start = GetEyePosition();
+
+	if (fileSystem->RunningPhobos()) {
+		if (gameLocal.GetCamera() && gameLocal.GetCamera()->spawnArgs.GetInt("AllowClickers")) {
+			start = gameLocal.GetCamera()->GetRenderView()->vieworg;
+			end = start + gameLocal.GetCamera()->GetRenderView()->viewaxis[0] * 80.0f;
+		}
+	}
 
 	// Koz begin
 	if ( game->isVR && !gameLocal.isMultiplayer ) // Koz fixme only when vr actually active.
@@ -8515,6 +8760,31 @@ void idPlayer::UpdateFocus( void ) {
 					}
 				}
 				continue;
+			}
+
+			if (fileSystem->RunningPhobos()) {
+				if (ent->IsType(idEntity::Type) && ent->spawnArgs.GetInt("clickable") &&
+					ent->spawnArgs.GetInt("click_item") &&
+					!ent->spawnArgs.GetInt("item_disabled")) {
+						gameLocal.clip.TracePoint(trace, start, end, MASK_SHOT_RENDERMODEL, this);
+						if ((trace.fraction < 1.0f) && (trace.c.entityNum == ent->entityNumber)) {
+							ClearFocus();
+							focusClickable = static_cast<idEntity *>(ent);
+							talkCursor = 1;
+							focusTime = gameLocal.time + FOCUS_TIME;
+
+							idMat3 viewAxis;
+							idVec3 center = focusClickable->GetPhysics()->GetAbsBounds().GetCenter();
+							if (gameLocal.GetCamera() && gameLocal.GetCamera()->spawnArgs.GetInt("AllowClickers")) {
+								viewAxis = gameLocal.GetCamera()->GetRenderView()->viewaxis;
+							} else {
+								viewAxis = viewAngles.ToMat3();
+							}
+							gameRenderWorld->DrawText(focusClickable->spawnArgs.GetString("item_action", "Touch"),
+							idVec3(center.x, center.y, center.z - 1.5f), 0.05f, colorCyan, viewAxis, 1);
+							break;
+					}
+				}
 			}
 
 			if ( ent->IsType( idAI::Type ) ) {
@@ -8833,6 +9103,13 @@ void idPlayer::UpdateFocus( void ) {
 
 	if ( focusGUIent && focusUI ) {
 		if ( !oldFocus || oldFocus != focusGUIent ) {
+			if (fileSystem->RunningPhobos()) {
+				// DG: tell the old UI it isn't focused anymore
+				if (oldFocus != NULL && oldUI != NULL) {
+					command = oldUI->Activate(false, gameLocal.time);
+					// TODO: HandleGuiCommands( oldFocus, command ); ?
+				} // DG end
+			}
 			command = focusUI->Activate( true, gameLocal.time );
 			HandleGuiCommands( focusGUIent, command );
 			StartSound( "snd_guienter", SND_CHANNEL_ANY, 0, false, NULL );
@@ -8863,6 +9140,16 @@ void idPlayer::UpdateFocus( void ) {
 			hud->SetStateString( "npc", "" );
 			hud->SetStateString("npc_action", "");
 			hud->HandleNamedEvent( "hideNPC" );
+		}
+	}
+
+	if (fileSystem->RunningPhobos()) {
+		if (oldClickable != focusClickable && hud) {
+			if (focusClickable) {
+				hud->HandleNamedEvent("showNPC");
+			} else {
+				hud->HandleNamedEvent("hideNPC");
+			}
 		}
 	}
 }
@@ -18282,3 +18569,156 @@ bool idPlayer::NeedsIcon( void ) {
 	// local clients don't render their own icons... they're only info for other clients
 	return entityNumber != gameLocal.localClientNum && ( isLagged || isChatting );
 }
+
+/*
+=================
+idPlayer::UpdateClickables
+
+Searches nearby entities for clickables and adds text markers
+=================
+*/
+void idPlayer::UpdateClickables(void) {
+  int i, numListedClipModels;
+  idClipModel *clipModel;
+  idClipModel *clipModelList[MAX_GENTITIES];
+  idVec3 eyePos;
+  idMat3 viewAxis;
+  idBounds bounds;
+  trace_t trace;
+  idEntity *ent;
+
+  if (gameLocal.GetCamera()) {
+    if (!gameLocal.GetCamera()->spawnArgs.GetInt("AllowClickers"))
+      return;
+
+    eyePos = gameLocal.GetCamera()->GetRenderView()->vieworg;
+    viewAxis = gameLocal.GetCamera()->GetRenderView()->viewaxis;
+  } else {
+    eyePos = GetEyePosition();
+    viewAxis = viewAngles.ToMat3();
+  }
+
+  bounds = idBounds(eyePos).Expand(80.f);
+
+  // get all clip models touching the bounds
+  numListedClipModels = gameLocal.clip.ClipModelsTouchingBounds(
+      bounds, -1, clipModelList, MAX_GENTITIES);
+
+  for (i = 0; i < numListedClipModels; i++) {
+    clipModel = clipModelList[i];
+    ent = clipModel->GetEntity();
+
+    if (ent->IsType(idEntity::Type) && ent->spawnArgs.GetInt("clickable") &&
+        ent->spawnArgs.GetInt("click_item") &&
+        !ent->spawnArgs.GetInt("item_disabled")) {
+      gameLocal.clip.TracePoint(trace, eyePos, clipModel->GetOrigin(),
+                                MASK_SHOT_RENDERMODEL, this);
+      if ((trace.fraction < 1.0f) && (trace.c.entityNum == ent->entityNumber)) {
+        idVec3 center = ent->GetPhysics()->GetAbsBounds().GetCenter();
+        gameRenderWorld->DrawText(
+            ent->spawnArgs.GetString("item_name", "Object"),
+            idVec3(center.x, center.y, center.z + 1.5f), 0.075f, colorBlue,
+            viewAxis, 1);
+      }
+      continue;
+    }
+  }
+}
+
+/*
+=================
+idPlayer::UpdateObjectiveSystem
+
+Closes the PDA after 5 seconds
+=================
+*/
+void idPlayer::UpdateObjectiveSystem(void) {
+  if (objectiveSystem == NULL) {
+    return;
+  }
+
+  if (objectiveSystemOpen &&
+      gameLocal.time > objectiveSystemOpenTime + SEC2MS(5)) {
+    TogglePDA( 1 - vr_weaponHand.GetInteger() );
+  }
+}
+
+/*
+=================
+idPlayer::UpdateTextMessages
+
+Removes old text messages
+=================
+*/
+void idPlayer::UpdateTextMessages(void) {
+  if (textMessageSystem == NULL) {
+    return;
+  }
+
+  int numVisible = 0;
+
+  for (int i = 1; i <= 5; i++) {
+    int typingVisible =
+        textMessageSystem->State().GetInt("text_message_typing_visible");
+    int messageVisible =
+        textMessageSystem->State().GetInt(va("text_message_%i_visible", i));
+    int messageReceivedTime =
+        textMessageSystem->State().GetInt(va("text_message_%i_timestamp", i));
+    int messageCleared =
+        textMessageSystem->State().GetInt(va("text_message_%i_cleared", i));
+
+    if (typingVisible || messageVisible) {
+      numVisible++;
+    }
+
+    if (gameLocal.time >= messageReceivedTime + SEC2MS(20) && messageVisible &&
+        !messageCleared) {
+      textMessageSystem->HandleNamedEvent(va("Text_Message_%i_Anim_Out", i));
+      textMessageSystem->SetStateInt(va("text_message_%i_cleared", i), 1);
+    }
+
+    if (gameLocal.time >= messageReceivedTime + SEC2MS(20.75) &&
+        messageVisible && messageCleared) {
+      textMessageSystem->SetStateInt(va("text_message_%i_visible", i), 0);
+    }
+  }
+
+  if (!numVisible) {
+    textMessageSystem->SetStateInt("text_message_linepos", 0);
+    textMessageSystem->Activate(false, gameLocal.time);
+    textMessageSystemOpen = false;
+  }
+}
+
+/*
+=================
+idPlayer::UpdateCameraGui
+
+Updates camera overlay GUI
+=================
+*/
+void idPlayer::UpdateCameraGui(void) {
+  if ((!gameLocal.GetCamera() ||
+       idStr::Icmp(gameLocal.GetCamera()->spawnArgs.GetString("name"),
+                   cameraGuiCamName)) &&
+      cameraGuiSystemOpen) {
+    cameraGuiSystemOpen = false;
+    cameraGuiSystem->Activate(false, gameLocal.time);
+    cameraGuiSystem = NULL;
+  }
+
+  if (gameLocal.GetCamera() &&
+      gameLocal.GetCamera()->spawnArgs.FindKey("cameragui") &&
+      !cameraGuiSystemOpen) {
+    cameraGuiSystem = uiManager->FindGui(
+        gameLocal.GetCamera()->spawnArgs.GetString("cameragui"), true, false,
+        true);
+    cameraGuiCamName = gameLocal.GetCamera()->spawnArgs.GetString("name");
+    gameLocal.SetUIAspectRatio(cameraGuiSystem);
+
+    if (cameraGuiSystem) {
+      cameraGuiSystem->Activate(true, gameLocal.time);
+      cameraGuiSystemOpen = true;
+    }
+  }
+ }
