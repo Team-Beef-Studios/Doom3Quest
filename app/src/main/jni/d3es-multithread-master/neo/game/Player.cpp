@@ -15727,6 +15727,11 @@ void idPlayer::CalculateRenderView( void ) {
 	}
 	memset( renderView, 0, sizeof( *renderView ) );
 
+	//Lubos: force flat cinematics in Phobos
+	if (fileSystem->RunningPhobos()) {
+		vr_cinematics.SetInteger(2);
+	}
+
 	// copy global shader parms
 	for( i = 0; i < MAX_GLOBAL_SHADER_PARMS; i++ ) {
 		renderView->shaderParms[ i ] = gameLocal.globalShaderParms[ i ];

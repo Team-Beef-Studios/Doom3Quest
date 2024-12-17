@@ -7,7 +7,7 @@ windowDef Desktop {
 	
 	windowDef Subtitles_4_3
 	{						
-		rect 0, 400, 640, 80
+		rect 0, 280, 640, 80
 		backcolor 0, 0, 0, .5
 
 		visible "gui::aspect_0_visible"
@@ -38,7 +38,7 @@ windowDef Desktop {
 	windowDef Subtitles_16_9
 	{				
 		forceaspectwidth 853
-		rect 0, 400, 853, 80
+		rect 0, 280, 853, 80
 		backcolor 0, 0, 0, .5
 
 		visible "gui::aspect_1_visible"
@@ -69,7 +69,7 @@ windowDef Desktop {
 	windowDef Subtitles_16_10
 	{				
 		forceaspectwidth 768
-		rect 0, 400, 768, 80
+		rect 0, 280, 768, 80
 		backcolor 0, 0, 0, .5
 
 		visible "gui::aspect_2_visible"
@@ -100,7 +100,7 @@ windowDef Desktop {
 	windowDef Subtitles_21_9
 	{				
 		forceaspectwidth 1120
-		rect 0, 400, 1120, 80
+		rect 0, 280, 1120, 80
 		backcolor 0, 0, 0, .5
 
 		visible "gui::aspect_3_visible"
