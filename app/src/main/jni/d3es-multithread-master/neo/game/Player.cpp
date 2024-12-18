@@ -12681,7 +12681,19 @@ void idPlayer::Think( void ) {
 		usercmd.upmove = 0;
 	}
 
-	if ( objectiveSystemOpen || gameLocal.inCinematic || influenceActive ) {
+	if ( fileSystem->RunningPhobos() ) {
+		if ( itemSystemOpen || gameLocal.inCinematic || influenceActive == INFLUENCE_LEVEL2) {
+			if ( itemSystemOpen && AI_PAIN ) {
+				ToggleItemSystem();
+			}
+			usercmd.forwardmove = 0;
+			usercmd.rightmove = 0;
+			usercmd.upmove = 0;
+		}
+		if (influenceActive > INFLUENCE_LEVEL3 && usercmd.upmove > 10) {
+			usercmd.upmove = 0;
+		}
+	} else if ( objectiveSystemOpen || gameLocal.inCinematic || influenceActive ) {
 		if ( objectiveSystemOpen && AI_PAIN ) {
 			TogglePDA( 1 - vr_weaponHand.GetInteger() );
 		}
@@ -17194,7 +17206,13 @@ void idPlayer::ClientPredictionThink( void ) {
 		usercmd.upmove = 0;
 	}
 
-	if ( objectiveSystemOpen ) {
+	if ( fileSystem->RunningPhobos() ) {
+		if ( itemSystemOpen ) {
+			usercmd.forwardmove = 0;
+			usercmd.rightmove = 0;
+			usercmd.upmove = 0;
+		}
+	} else if ( objectiveSystemOpen ) {
 		usercmd.forwardmove = 0;
 		usercmd.rightmove = 0;
 		usercmd.upmove = 0;
