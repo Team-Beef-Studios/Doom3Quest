@@ -3225,9 +3225,9 @@ makes rendering and sound system calls
 ================
 */
 bool idGameLocal::Draw( int clientNum ) {
-	/*if ( isMultiplayer ) {
+	if ( isMultiplayer ) {
 		return mpGame.Draw( clientNum );
-	}*/
+	}
 
 	idPlayer *player = static_cast<idPlayer *>(entities[ clientNum ]);
 
