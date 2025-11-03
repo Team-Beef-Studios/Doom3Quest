@@ -6382,14 +6382,14 @@ void idPlayerHand::NextWeapon( int dir )
         if (idealWeapon == WEAPON_CHAINSAW)
         {
         	//Start chainsaw idling haptic immediately
-            common->HapticEvent("chainsaw_idle", vr_weaponHand.GetInteger() ? 1 : 2, 1, 100, 0, 0);
+            //common->HapticEvent("chainsaw_idle", vr_weaponHand.GetInteger() ? 1 : 2, 1, 100, 0, 0);
         }
         else
 		{
             if (currentWeapon == WEAPON_CHAINSAW)
             {
                 //Stop all chainsaw haptics immediately
-                common->HapticStopEvent("chainsaw_idle");
+                //common->HapticStopEvent("chainsaw_idle");
                 common->HapticStopEvent("chainsaw_fire");
             }
 
