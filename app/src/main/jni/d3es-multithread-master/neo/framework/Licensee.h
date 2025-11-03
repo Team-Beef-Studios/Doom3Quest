@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 #define GAME_NAME						"Doom3Quest"		// appears on window titles and errors
 #endif
 
-#define ENGINE_VERSION					"Doom3Quest 1.4.1"	// printed in console
+#define ENGINE_VERSION					"Doom3Quest 1.4.2"	// printed in console
 
 #ifdef ID_REPRODUCIBLE_BUILD
 	// for reproducible builds we hardcode values that would otherwise come from __DATE__ and __TIME__
