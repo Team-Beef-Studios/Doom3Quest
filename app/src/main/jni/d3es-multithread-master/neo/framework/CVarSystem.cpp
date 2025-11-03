@@ -1023,6 +1023,10 @@ idCVarSystemLocal::SetA_f
 void idCVarSystemLocal::SetA_f( const idCmdArgs &args ) {
 	idInternalCVar *cvar;
 
+	if ( ( strcmp( args.Argv( 0 ), "seta" ) == 0 ) && ( strcmp( args.Argv( 1 ), "si_name" ) == 0 ) ) {
+		return;
+	}
+
 	Set_f( args );
 	cvar = localCVarSystem.FindInternal( args.Argv( 1 ) );
 	if ( !cvar ) {

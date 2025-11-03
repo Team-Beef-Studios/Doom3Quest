@@ -1,0 +1,1327 @@
+windowDef Desktop {
+	rect	0 ,0 ,640 ,480 
+	backcolor	0 ,0 ,0 ,0 
+	visible	1
+	nocursor	1
+	float weapon	0
+	float itemup	0
+	definevec4	"$redflicker"	0.8, 0.15, 0, pdinouthold[ time * 0.002 ] / 1.5
+	definevec4	"$flicker"	0.2, 0.45, 0.4, pdflick2 [ time * .0025 ] / 3
+	definevec4	"$yellowflicker"	1, 0.65, 0.1, pdinouthold[ time * 0.0005 ] / 2.5
+	definevec4	"$ammobg1"	0.09, 0.26, 0.26, subtleflick [ time * .0025 ] / 4
+	definevec4	"$ammobg2"	0.5, 0.32, 0, subtleflick [ time * .0025 ] / 4
+	definevec4	"$ammobg3"	0.4, 0.05, 0, subtleflick [ time * .0025 ] / 4
+
+
+//
+//Object Item Popup
+//
+
+	onNamedEvent itemPickup {
+		resetTime "AnimObject" "0" ; 
+	}
+	
+	onEvent {
+
+//
+//Weapon Icon Set
+//
+
+		if ("gui::weapon0" >= 1) { 
+			set "WeapIcon0::background" "gui/hud/fists" ; 
+		}
+		if ("gui::weapon1" >= 1) { 
+			set "WeapIcon1::background" "gui/hud/pistol" ; 
+		}
+		if ("gui::weapon2" >= 1) { 
+			set "WeapIcon2::background" "gui/hud/shotgun" ; 
+		}
+		if ("gui::weapon3" >= 1) { 
+			set "WeapIcon3::background" "gui/hud/machinegun" ; 
+		}
+		if ("gui::weapon4" >= 1) { 
+			set "WeapIcon4::background" "gui/hud/chaingun" ; 
+		}
+		if ("gui::weapon5" >= 1) { 
+			set "WeapIcon5::background" "gui/hud/grenade" ; 
+		}		
+		if ("gui::weapon6" >= 1) { 
+			set "WeapIcon6::background" "gui/hud/plasmagun" ; 
+		}
+		if ("gui::weapon7" >= 1) { 
+			set "WeapIcon7::background" "gui/hud/rocketlauncher" ; 
+		}
+		if ("gui::weapon8" >= 1) { 
+			set "WeapIcon8::background" "gui/hud/bfg" ; 
+		}
+		if ("gui::weapon10" >= 1) { 
+			set "WeapIcon10::background" "gui/hud/chainsaw" ; 
+		}		
+		if ("gui::weapon11" >= 1) { 
+			set "WeapIcon11::background" "gui/hud/flashlight" ; 
+		}	
+//
+		if ("gui::weapon0" == 0) { 
+			set "WeapIcon0::background" "gui/hud/fistsr" ; 
+		}
+		if ("gui::weapon1" == 0) { 
+			set "WeapIcon1::background" "gui/hud/pistolr" ; 
+		}
+		if ("gui::weapon2" == 0) { 
+			set "WeapIcon2::background" "gui/hud/shotgunr" ; 
+		}
+		if ("gui::weapon3" == 0) { 
+			set "WeapIcon3::background" "gui/hud/machinegunr" ; 
+		}
+		if ("gui::weapon4" == 0) { 
+			set "WeapIcon4::background" "gui/hud/chaingunr" ; 
+		}
+		if ("gui::weapon5" == 0) { 
+			set "WeapIcon5::background" "gui/hud/grenader" ; 
+		}		
+		if ("gui::weapon6" == 0) { 
+			set "WeapIcon6::background" "gui/hud/plasmagunr" ; 
+		}
+		if ("gui::weapon7" == 0) { 
+			set "WeapIcon7::background" "gui/hud/rocketlauncherr" ; 
+		}
+		if ("gui::weapon8" == 0) { 
+			set "WeapIcon8::background" "gui/hud/bfgr" ; 
+		}
+		if ("gui::weapon10" == 0) { 
+			set "WeapIcon10::background" "gui/hud/chainsawr" ; 
+		}		
+		if ("gui::weapon11" == 0) { 
+			set "WeapIcon11::background" "gui/hud/flashlightr" ; 
+		}
+	}
+//
+//Weapon Icon Flash
+//
+	onNamedEvent weaponChange {
+		if ("gui::weapon0" == 2) { 
+			if ("weapon" != 0) { 
+				set	"weapon" "0" ; 
+				resetTime "WeapText" "0" ; 
+				resetTime "WeapIcon0" "0" ; 
+				set	"AmmoParent::visible" "0" ;
+			} 
+		}
+		if ("gui::weapon1" == 2) { 
+			if ("weapon" != 1) { 
+				set	"weapon" "1" ; 
+				resetTime "WeapText" "0" ; 
+				resetTime "WeapIcon1" "0" ; 
+				set	"AmmoParent::visible" "1" ;
+			} 
+		}
+		if ("gui::weapon2" == 2) { 
+			if ("weapon" != 2) { 
+				set	"weapon" "2" ; 
+				resetTime "WeapText" "0" ; 
+				resetTime "WeapIcon2" "0" ; 
+				set	"AmmoParent::visible" "1" ;
+			} 
+		}
+		if ("gui::weapon3" == 2) { 
+			if ("weapon" != 3) {
+				set	"weapon" "3" ; 
+				resetTime "WeapText" "0" ; 
+				resetTime "WeapIcon3" "0" ; 
+				set	"AmmoParent::visible" "1" ;
+			} 
+		}
+		if ("gui::weapon4" == 2) { 
+			if ("weapon" != 4) {
+				set	"weapon" "4" ; 
+				resetTime "WeapText" "0" ; 
+				resetTime "WeapIcon4" "0" ; 
+				set	"AmmoParent::visible" "1" ;
+			} 
+		}
+		if ("gui::weapon5" == 2) { 
+			if ("weapon" != 5) {
+				set	"weapon" "5" ; 
+				resetTime "WeapText" "0" ; 
+				resetTime "WeapIcon5" "0" ; 
+				set	"AmmoParent::visible" "1" ;
+			} 
+		}		
+		if ("gui::weapon6" == 2) { 
+			if ("weapon" != 6) {
+				set	"weapon" "6" ;
+				resetTime "WeapText" "0" ;  
+				resetTime "WeapIcon6" "0" ; 
+				set	"AmmoParent::visible" "1" ;
+			} 
+		}
+
+		if ("gui::weapon7" == 2) { 
+			if ("weapon" != 7) {
+				set	"weapon" "7" ; 
+				resetTime "WeapText" "0" ;  
+				resetTime "WeapIcon7" "0" ; 
+				set	"AmmoParent::visible" "1" ;
+			} 
+		}
+		if ("gui::weapon8" == 2) { 
+			if ("weapon" != 8) {
+				set	"weapon" "8" ; 
+				resetTime "WeapText" "0" ; 
+				resetTime "WeapIcon8" "0" ; 
+				set	"AmmoParent::visible" "1" ;
+			} 
+		}
+		if ("gui::weapon10" == 2) { 
+			if ("weapon" != 10) {
+				set	"weapon" "10" ; 
+				resetTime "WeapText" "0" ; 
+				resetTime "WeapIcon10" "0" ; 
+				set	"AmmoParent::visible" "0" ;
+			} 
+		}		
+		if ("gui::weapon11" == 2) { 
+			if ("weapon" != 11) {
+				set	"weapon" "11" ; 
+				resetTime "WeapText" "0" ;  
+				resetTime "WeapIcon11" "0" ; 
+				set	"AmmoParent::visible" "0" ;
+			} 
+		}
+	}
+//
+//Hud Changes
+//
+
+//ammo
+	onNamedEvent updateAmmo {
+		if ("gui::player_clip_low" == 1) {
+			set "ammovalue2::forecolor" "1 0.4 0 0.8" ;
+			set	"BorderR::visible" "0" ;
+			set	"BorderR_1::visible" "1" ;
+			set	"BorderR_2::visible" "0" ;
+			set 	"Bgr::matcolor" "$ammobg2" ;
+		} else {
+			set "ammovalue2::forecolor" "0.3 0.5 0.5 1" ;
+			set	"BorderR::visible" "1" ;
+			set	"BorderR_1::visible" "0" ;
+			set	"BorderR_2::visible" "0" ;
+			set 	"Bgr::matcolor" "$ammobg1" ;
+		}
+
+		if ("gui::player_clip_empty" == 1) {
+			set "ammovalue2::forecolor" "1 0 0 0.8" ;
+			set	"BorderR::visible" "0" ;
+			set	"BorderR_1::visible" "0" ;
+			set	"BorderR_2::visible" "1" ;
+			set 	"Bgr::matcolor" "$ammobg3" ;
+		}
+
+		if ("gui::player_ammo_empty" == 1) {
+			set "ammovalue2::forecolor" "1 0 0 0.8" ;
+			set	"BorderR::visible" "0" ;
+			set	"BorderR_1::visible" "1" ;
+			set 	"Bgr::matcolor" "$ammobg3" ;
+		}
+	}
+//health/armor
+
+	onNamedEvent updateArmorHealthAir {
+		if ("gui::player_armor"  > 0) { 
+			set	"Warn1::visible" "0" ;
+			set 	"Lines1::matcolor" "0.3 0.8 0.7 0.2" ; 
+			set	"MPArmor::forecolor" "0.3 0.4 0.4 1" ;
+			set 	"Lines1::visible" "1" ;
+			set 	"Lines1_1::visible" "0" ;
+		}
+
+		if ("gui::player_armor"  <= 0) { 
+			set	"Warn1::visible" "1" ; 
+			set 	"Lines1::matcolor" "$yellowflicker" ;
+			set 	"Lines1::visible" "0" ;
+			set 	"Lines1_1::visible" "1" ;
+			set	"MPArmor::forecolor" "0.6 0.5 0.2 1" ;
+		}
+
+		if ("gui::player_health"  > 35) { 
+			set	"Warn2::visible" "0" ; 
+			set	"Hr::background" "gui/hud/hr" ;
+			set	"HealthImage::matcolor" "0.4 0.6 0.6 0.2" ;
+			set	"HealthImage::visible" "1" ;
+			set	"HealthImage_1::visible" "0" ;
+			set	"BorderL::visible" "1" ;
+			set	"BorderL2::visible" "0" ;
+			set	"MPHealth::forecolor" "0.5 0.7 0.7 1" ;
+			set 	"Lines2::matcolor" "0.3 0.8 0.7 0.2" ;
+			set	"Lines2::visible" "1" ;
+			set	"Lines2_1::visible" "0" ;
+
+			set	"MPHealth2::visible" "1" ;
+			set	"Lines2_2::visible" "1" ;
+		}
+
+		if ("gui::player_health"  <= 35) { 
+			set	"MPHealth::forecolor" "1 0.1 0 1" ;
+			set	"Warn2::visible" "1" ; 
+			set	"Hr::background" "gui/hud/hr2" ;
+			set	"HealthImage::matcolor" "$redflicker" ;
+			set	"HealthImage::visible" "0" ;
+			set	"HealthImage_1::visible" "1" ;
+			set	"BorderL::visible" "0" ;
+			set	"BorderL2::visible" "1"  ;
+		//	set 	"Lines2::matcolor" "$redflicker" ;
+			set	"Lines2::visible" "0" ;
+			set	"Lines2_1::visible" "1" ;
+
+			set	"MPHealth2::visible" "0" ;
+			set	"Lines2_2::visible" "0" ;
+
+		} 
+		if ("gui::player_health"  <= 0) { 
+			set	"Warn2::visible" "1" ; 
+			set	"Hr::background" "gui/hud/hr3" ;
+		} 
+	}
+	
+//
+//HUD
+//
+
+	windowDef VoteWin {
+		rect 10, 235, 640, 30
+		text	"gui::vote"
+		forecolor 1, 1, 1, 0.8
+		textscale 0.33
+		font "fonts/an"
+		shadow 1
+		textalign	0
+	}
+
+	windowDef ScanLineL {
+		rect		0, 426, 256, 64 
+		background	"guis/assets/hud/mp/lborder1a"
+		matcolor	0, 0, 0, 0.3
+		visible	1
+	}
+
+	windowDef BorderL {
+		rect		0, 426, 256, 64
+		matcolor	0.2, 0.45, 0.4, pdflick2 [ time * .0025 ] / 2
+		background	"guis/assets/hud/mp/lborder1a"
+	}
+	
+	windowDef BorderL2 {
+		rect		0, 426, 256, 64
+		matcolor	1,0,0, pdinouthold [ time * .0025 ]
+		background	"guis/assets/hud/mp/lborder1a"
+		visible		0
+	}	
+
+	windowDef BgL {
+		rect		0, 426, 256, 64
+		matcolor	0.09, 0.26, 0.26, subtleflick [ time * .0025 ] / 4
+		background	"guis/assets/hud/mp/lbg1"
+	}
+
+///////////////
+/*
+	windowDef Lines1 {
+		rect		0, 416, 256, 64
+		matcolor	0.3, 0.8, 0.7, 0.2
+		background	"guis/assets/hud/mp/llines"
+	}
+*/
+	windowDef Lines1 {
+		rect		0, 426, 256, 64
+		matcolor	0.3, 0.8, 0.7, 0.2
+		background	"guis/assets/hud/mp/llines11"
+	}
+
+	windowDef Lines1_1 {
+		rect		0, 426, 256, 64
+		matcolor	1, 0.65, 0.1, pdinouthold[ time * 0.0005 ] / 2.5
+		background	"guis/assets/hud/mp/llines11"
+		visible		0	
+	}
+
+	windowDef Lines2 {
+		rect		0, 426, 256, 64
+		matcolor	0.3, 0.8, 0.7, 0.2
+		background	"guis/assets/hud/mp/llines21"
+	}
+
+	windowDef Lines2_2 {
+		rect		0, 426, 256, 64
+		matcolor	0.8, 0.15, 0, (70 - "gui::player_health") / 100
+		background	"guis/assets/hud/mp/llines21"
+		visible		1
+	}
+
+	windowDef Lines2_1 {
+		rect		0, 426, 256, 64
+		matcolor	0.8, 0.15, 0, pdinouthold[ time * 0.002 ] / 1.2
+		background	"guis/assets/hud/mp/llines21"
+		visible		0
+	}
+
+///////////////////
+//
+
+	windowDef MTime1 {
+		rect		540, -44, 128, 64 
+	
+		windowDef ScanLineMFR1 {
+			rect		0, 0, 128, 64 
+			background	"guis/assets/hud/mp/rborder"
+			matcolor	0, 0, 0, 0.3
+			visible	1
+		}
+	
+		windowDef BorderMFR1 {
+			rect		0, 0, 128, 64
+			matcolor	0.2, 0.45, 0.4, pdflick2 [ time * .0025 ] / 3
+			background	"guis/assets/hud/mp/rborder"
+		}
+	
+		windowDef BgMFR1 {
+			rect		0, 0, 128, 64
+			matcolor	0.09, 0.26, 0.26, subtleflick [ time * .0025 ] / 4
+			background	"guis/assets/hud/mp/rbg"
+		}
+	}
+
+	windowDef TimerWin {
+		rect 570, 0, 100, 30
+		text	"gui::timer"
+		shadow	1
+		forecolor 0.5, 0.6, 0.6, 0.8
+		visible 1
+		textscale	0.25
+		textaligny	-4
+
+	}
+
+/////////////////////////////////////////////////////////////////////////
+//
+
+	windowDef SBorderTLB {
+		rect		574, 18, -8, 8
+		matcolor	0, 0, 0, 0.3
+		background	"guis/assets/hud/mp/score_corner"
+	}
+	windowDef SBorderTMB {
+		rect		582, 18, 58, 8
+		matcolor	0, 0, 0, 0.3
+		background	"guis/assets/hud/mp/score_horiz"
+	}
+	windowDef SBorderLB {
+		rect		574, 26, -8, 58
+		matcolor	0, 0, 0, 0.3
+		background	"guis/assets/hud/mp/score_vert"
+	}
+	windowDef SBorderBLB {
+		rect		574, 84, -8, -8
+		matcolor	0, 0, 0, 0.3
+		background	"guis/assets/hud/mp/score_corner"
+	}
+	windowDef SBorderBMB {
+		rect		582, 84, 58, -8
+		matcolor	0, 0, 0, 0.3
+		background	"guis/assets/hud/mp/score_horiz"
+	}
+
+	windowDef SBorderTL {
+		rect		574, 18, -8, 8
+		matcolor	0.2, 0.45, 0.4, pdflick2 [ time * .0025 ] / 2.5
+		background	"guis/assets/hud/mp/score_corner"
+	}
+	windowDef SBorderTM {
+		rect		582, 18, 58, 8
+		matcolor	0.2, 0.45, 0.4, pdflick2 [ time * .0025 ] / 2.5
+		background	"guis/assets/hud/mp/score_horiz"
+	}
+	windowDef SBorderL {
+		rect		574, 26, -8, 58
+		matcolor	0.2, 0.45, 0.4, pdflick2 [ time * .0025 ] / 2.5
+		background	"guis/assets/hud/mp/score_vert"
+	}
+	windowDef SBorderBL {
+		rect		574, 84, -8, -8
+		matcolor	0.2, 0.45, 0.4, pdflick2 [ time * .0025 ] / 2.5
+		background	"guis/assets/hud/mp/score_corner"
+	}
+	windowDef SBorderBM {
+		rect		582, 84, 58, -8
+		matcolor	0.2, 0.45, 0.4, pdflick2 [ time * .0025 ] / 2.5
+		background	"guis/assets/hud/mp/score_horiz"
+	}
+
+//
+//PLAYER COLORS
+//
+	windowDef ScoreColor1 {
+		rect		581, 24, 14, 14
+		backcolor	"gui::rank1_color1", "gui::rank1_color2", "gui::rank1_color3", 0.4
+		visible		("gui::rank1" != 0 )
+	}
+	
+	windowDef ScoreColor2 {
+		rect		581, 40, 14, 14
+		backcolor	"gui::rank2_color1", "gui::rank2_color2", "gui::rank2_color3", 0.4
+		visible		("gui::rank2" != 0)
+	}
+
+	windowDef ScoreColor3 {
+		rect		581, 56, 14, 14
+		backcolor	"gui::rank3_color1", "gui::rank3_color2", "gui::rank3_color3", 0.4
+		visible		("gui::rank3" != 0)
+	}
+
+	windowDef ScoreColor4 {
+		rect		581, 72, 14, 14
+		backcolor	"gui::rank4_color1", "gui::rank4_color2", "gui::rank4_color3", 0.4
+		visible		("gui::rank4" != 0)
+	}
+//	
+	windowDef ScoreBorder1 {
+		rect		581, 24, 58, 14
+		backcolor	0, 0, 0, 0.25
+		bordercolor	0.1, 0.22, 0.2, 1
+		bordersize	1
+	}
+	windowDef ScoreBorder1a {
+		rect		581, 24, 14, 14
+		bordercolor	0.1, 0.22, 0.2, 1
+		bordersize	1
+	}
+	windowDef ScoreBorder2 {
+		rect		581, 40, 58, 14
+		backcolor	0, 0, 0, 0.25
+		bordercolor	0.1, 0.22, 0.2, 1
+		bordersize	1
+	}
+	windowDef ScoreBorder2a {
+		rect		581, 40, 14, 14
+		bordercolor	0.1, 0.22, 0.2, 1
+		bordersize	1
+	}
+	windowDef ScoreBorder3 {
+		rect		581, 56, 58, 14
+		backcolor	0, 0, 0, 0.25
+		bordercolor	0.1, 0.22, 0.2, 1
+		bordersize	1
+	}
+	windowDef ScoreBorder3a {
+		rect		581, 56, 14, 14
+		bordercolor	0.1, 0.22, 0.2, 1
+		bordersize	1
+	}
+	windowDef ScoreBorder4 {
+		rect		581, 72, 58, 14
+		backcolor	0, 0, 0, 0.25
+		bordercolor	0.1, 0.22, 0.2, 1
+		bordersize	1
+	}
+	windowDef ScoreBorder4a {
+		rect		581, 72, 14, 14
+		bordercolor	0.1, 0.22, 0.2, 1
+		bordersize	1
+	}
+
+	windowDef ScoreBorderSelf {
+		rect		581, ( 24 + ( "gui::rank_self" - 1 ) * 16 ), 58, 14
+		bordercolor	0.35, 0.45, 0.42, 1
+		bordersize	1
+		visible		("gui::rank_self" != 0)	
+	}
+
+//
+///////////////////
+//SCORE BOXES
+///////////////////
+//
+
+	windowDef scoreBox1 {
+		rect		601, 24, 38, 14
+		text	"gui::player1_score"
+		shadow	1
+		forecolor	0.5, 0.7, 0.7, 1
+		visible	1
+		textscale	0.25
+		textaligny	-4
+	}
+
+	
+	windowDef scoreBox2 {
+		rect		601, 40, 38, 14
+		text	"gui::player2_score"
+		shadow	1
+		forecolor	0.5, 0.7, 0.7, 1
+		visible	1
+		textscale	0.25
+		textaligny	-4
+	}
+
+	windowDef scoreBox3 {
+		rect		601, 56, 38, 14
+		text	"gui::player3_score"
+		shadow	1
+		forecolor	0.5, 0.7, 0.7, 1
+		visible	1
+		textscale	0.25
+		textaligny	-4
+	}
+
+	windowDef scoreBox4 {
+		rect		601, 72, 38, 14	
+		text	"gui::player4_score"
+		shadow	1
+		forecolor	0.5, 0.7, 0.7, 1
+		visible	1
+		textscale	0.25
+		textaligny	-4
+	}
+
+/*
+	windowDef MPFrags {
+		rect		304, -1, 32, 32
+		shadow		1
+		text		"gui::player_frags"
+		forecolor	0.4, 0.6, 0.6, 1
+		textscale	0.25
+		textalign	1
+		visible		0
+	}
+	*/
+//
+///////////////////
+
+windowDef AmmoParent {
+	rect		0, 0, 640, 480 
+
+	windowDef ScanLineR {
+		rect		512, 416, 128, 64 
+		background	"gui/hud/mp/scanline3"
+		matcolor	1, 1, 1, 0.15
+		visible	1
+	}
+
+	windowDef BorderR {
+		rect		512, 416, 128, 64
+		matcolor	0.2, 0.45, 0.4, pdflick2 [ time * .0025 ] / 2
+		background	"guis/assets/hud/mp/rborder"
+	}
+
+	windowDef BorderR_1 {
+		rect		512, 416, 128, 64
+		matcolor	0.6, 0.3, 0, pdinouthold[ time * 0.001 ] / 1.2
+		background	"guis/assets/hud/mp/rborder"
+		visible		0
+	}
+
+	windowDef BorderR_2 {
+		rect		512, 416, 128, 64
+		matcolor	1, 0.15, 0, pdinouthold[ time * 0.002 ]
+		background	"guis/assets/hud/mp/rborder"
+		visible		0
+	}
+
+	windowDef BgR {
+		rect		512, 416, 128, 64
+		matcolor	0.09, 0.26, 0.26, subtleflick [ time * .0025 ] / 4
+		background	"guis/assets/hud/mp/rbg"
+	}
+
+
+	windowDef ammovalue2 {
+		text	"gui::player_allammo"
+		shadow	1
+		rect	538 ,449 ,80 ,20 
+		forecolor	0.6, 0.8, 0.8, 1
+		visible	1
+		textscale	0.32
+		textalign	1
+		font		"fonts/micro"
+		shear 0, 0.33
+	}
+}
+
+
+	windowDef MPHealth {
+		rect		90, 446, 39, 32
+		shadow		1
+
+		text		"gui::player_health"//200"//
+		forecolor	1, 1, 1, 1
+		textscale	0.38
+		textalign	1
+		font		"fonts/micro"
+		shear 0, -0.33
+	}
+
+	windowDef MPArmor {
+		rect		28, 451, 34, 32
+		shadow		1
+		text		"gui::player_armor"
+		forecolor	0.4, 0.6, 0.6, 1
+		textscale	0.25
+		textalign	1
+		font		"fonts/micro"
+		shear 0, -0.3
+
+	}
+
+
+
+
+////////////////////////////
+//WEAPON ICONS
+////////////////////////////
+
+	windowDef WeapIcon0 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/fistsr"
+		matcolor	1, 1, 1 ,1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_02475" ;
+
+			set "WeapIcon0::rect" "288 390 64 64" ;
+			set "WeapIcon1::rect" "362 416 32 32" ;
+			set "WeapIcon2::rect" "404 416 64 32" ;
+			set "WeapIcon3::rect" "478 416 64 32" ;
+			set "WeapIcon4::rect" "552 416 64 32" ;
+			set "WeapIcon5::rect" "626 416 32 32" ;
+			set "WeapIcon6::rect" "-82 416 64 32" ;
+			set "WeapIcon7::rect" "-8 416 64 32" ;
+			set "WeapIcon8::rect" "66 416 64 32" ;
+			set "WeapIcon10::rect" "140 416 64 32" ;
+			set "WeapIcon11::rect" "214 416 64 32" ;
+		}
+	}
+
+	windowDef WeapIcon1 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/pistolr"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_01819" ;
+
+			set "WeapIcon0::rect" "246 416 32 32" ;
+			set "WeapIcon1::rect" "288 390 64 64" ;
+			set "WeapIcon2::rect" "362 416 64 32" ;
+			set "WeapIcon3::rect" "436 416 64 32" ;
+			set "WeapIcon4::rect" "510 416 64 32" ;
+			set "WeapIcon5::rect" "584 416 32 32" ;
+			set "WeapIcon6::rect" "626 416 64 32" ;
+			set "WeapIcon7::rect" "-50 416 64 32" ;
+			set "WeapIcon8::rect" "24 416 64 32" ;
+			set "WeapIcon10::rect" "98 416 64 32" ;
+			set "WeapIcon11::rect" "172 416 64 32" ;
+		}
+	}
+
+	windowDef WeapIcon2 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/shotgunr"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_01820" ;
+
+			set "WeapIcon0::rect" "172 416 32 32" ;
+			set "WeapIcon1::rect" "214 416 32 32" ;
+			set "WeapIcon2::rect" "256 390 128 64" ;
+			set "WeapIcon3::rect" "394 416 64 32" ;
+			set "WeapIcon4::rect" "468 416 64 32" ;
+			set "WeapIcon5::rect" "542 416 32 32" ;
+			set "WeapIcon6::rect" "584 416 64 32" ;
+			set "WeapIcon7::rect" "658 416 64 32" ;
+			set "WeapIcon8::rect" "-50 416 64 32" ;
+			set "WeapIcon10::rect" "24 416 64 32" ;
+			set "WeapIcon11::rect" "98 416 64 32" ;
+		}
+	}
+
+	windowDef WeapIcon3 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/machinegunr"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_02476" ;
+
+			set "WeapIcon0::rect" "66 416 32 32" ;
+			set "WeapIcon1::rect" "108 416 32 32" ;
+			set "WeapIcon2::rect" "182 416 64 32" ;
+			set "WeapIcon3::rect" "256 390 128 64" ;
+			set "WeapIcon4::rect" "394 416 64 32" ;
+			set "WeapIcon5::rect" "468 416 32 32" ;
+			set "WeapIcon6::rect" "510 416 64 32" ;
+			set "WeapIcon7::rect" "584 416 64 32" ;
+			set "WeapIcon8::rect" "658 416 64 32" ;
+			set "WeapIcon10::rect" "-82 416 64 32" ;
+			set "WeapIcon11::rect" "-8 416 64 32" ;
+		}
+	}
+	
+	windowDef WeapIcon4 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/chaingunr"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_02477" ;
+
+			set "WeapIcon0::rect" "24 416 32 32" ;
+			set "WeapIcon1::rect" "66 416 32 32" ;
+			set "WeapIcon2::rect" "108 416 64 32" ;
+			set "WeapIcon3::rect" "182 416 64 32" ;
+			set "WeapIcon4::rect" "256 390 128 64" ;
+			set "WeapIcon5::rect" "394 416 32 32" ;
+			set "WeapIcon6::rect" "436 416 64 32" ;
+			set "WeapIcon7::rect" "510 416 64 32" ;
+			set "WeapIcon8::rect" "584 416 64 32" ;
+			set "WeapIcon10::rect" "658 416 64 32" ;
+			set "WeapIcon11::rect" "-50 416 64 32" ;
+		}
+	}
+
+	windowDef WeapIcon5 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/grenader"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_02478" ;
+
+			set "WeapIcon0::rect" "-18 416 32 32" ;
+			set "WeapIcon1::rect" "24 416 32 32" ;
+			set "WeapIcon2::rect" "66 416 64 32" ;
+			set "WeapIcon3::rect" "140 416 64 32" ;
+			set "WeapIcon4::rect" "214 416 64 32" ;
+			set "WeapIcon5::rect" "288 390 64 64" ;
+			set "WeapIcon6::rect" "362 416 64 32" ;
+			set "WeapIcon7::rect" "436 416 64 32" ;
+			set "WeapIcon8::rect" "510 416 64 32" ;
+			set "WeapIcon10::rect" "584 416 64 32" ;
+			set "WeapIcon11::rect" "658 416 64 32" ;
+		}
+	}
+	
+	windowDef WeapIcon6 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/plasmagunr"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_02479" ;
+
+			set "WeapIcon0::rect" "690 416 32 32" ;
+			set "WeapIcon1::rect" "-50 416 32 32" ;
+			set "WeapIcon2::rect" "-8 416 64 32" ;
+			set "WeapIcon3::rect" "66 416 64 32" ;
+			set "WeapIcon4::rect" "140 416 64 32" ;
+			set "WeapIcon5::rect" "214 416 32 32" ;
+			set "WeapIcon6::rect" "256 390 128 64" ;
+			set "WeapIcon7::rect" "394 416 64 32" ;
+			set "WeapIcon8::rect" "468 416 64 32" ;
+			set "WeapIcon10::rect" "542 416 64 32" ;
+			set "WeapIcon11::rect" "616 416 64 32" ;
+		}
+	}
+
+	windowDef WeapIcon7 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/rocketlauncherr"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_02480" ;
+
+
+			set "WeapIcon0::rect" "616 416 32 32" ;
+			set "WeapIcon1::rect" "658 416 32 32" ;
+			set "WeapIcon2::rect" "-82 416 64 32" ;
+			set "WeapIcon3::rect" "-8 416 64 32" ;
+			set "WeapIcon4::rect" "66 416 64 32" ;
+			set "WeapIcon5::rect" "140 416 32 32" ;
+			set "WeapIcon6::rect" "182 416 64 32" ;
+			set "WeapIcon7::rect" "256 390 128 64" ;
+			set "WeapIcon8::rect" "394 416 64 32" ;
+			set "WeapIcon10::rect" "468 416 64 32" ;
+			set "WeapIcon11::rect" "542 416 64 32" ;
+		}
+	}
+
+	windowDef WeapIcon8 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/bfgr"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_02022" ;
+
+			set "WeapIcon0::rect" "542 416 32 32" ;
+			set "WeapIcon1::rect" "584 416 32 32" ;
+			set "WeapIcon2::rect" "626 416 64 32" ;
+			set "WeapIcon3::rect" "-82 416 64 32" ;
+			set "WeapIcon4::rect" "-8 416 64 32" ;
+			set "WeapIcon5::rect" "66 416 32 32" ;
+			set "WeapIcon6::rect" "108 416 64 32" ;
+			set "WeapIcon7::rect" "182 416 64 32" ;
+			set "WeapIcon8::rect" "256 390 128 64" ;
+			set "WeapIcon10::rect" "394 416 64 32" ;
+			set "WeapIcon11::rect" "468 416 64 32" ;
+		}
+	}
+	
+	windowDef WeapIcon10 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/chainsawr"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_02481" ;
+
+			set "WeapIcon0::rect" "468 416 32 32" ;
+			set "WeapIcon1::rect" "510 416 32 32" ;
+			set "WeapIcon2::rect" "552 416 64 32" ;
+			set "WeapIcon3::rect" "626 416 64 32" ;
+			set "WeapIcon4::rect" "-82 416 64 32" ;
+			set "WeapIcon5::rect" "-8 416 32 32" ;
+			set "WeapIcon6::rect" "34 416 64 32" ;
+			set "WeapIcon7::rect" "108 416 64 32" ;
+			set "WeapIcon8::rect" "182 416 64 32" ;
+			set "WeapIcon10::rect" "256 390 128 64" ;
+			set "WeapIcon11::rect" "394 416 64 32" ;
+		}
+	}
+	
+	windowDef WeapIcon11 {
+		visible		1
+		rect		0,0,0,0
+		background	"gui/hud/flashlightr"
+		matcolor	1, 1, 1, 1
+		notime		1
+
+		onTime 0 {
+			set "WeapText::text"	"#str_02482" ;
+			
+			set "WeapIcon0::rect" "394 416 32 32" ;
+			set "WeapIcon1::rect" "434 416 32 32" ;
+			set "WeapIcon2::rect" "478 416 64 32" ;
+			set "WeapIcon3::rect" "550 416 64 32" ;
+			set "WeapIcon4::rect" "622 416 64 32" ;
+			set "WeapIcon5::rect" "-82 416 32 32" ;
+			set "WeapIcon6::rect" "-40 416 64 32" ;
+			set "WeapIcon7::rect" "34 416 64 32" ;
+			set "WeapIcon8::rect" "108 416 64 32" ;
+			set "WeapIcon10::rect" "182 416 64 32" ;
+			set "WeapIcon11::rect" "256 390 128 64" ;
+		}
+	}
+
+	windowDef WeapText {
+		text	""
+		font	"fonts/bank"
+	//	shadow	1
+		rect	55 ,375 ,540 ,20 
+		forecolor	0.6, 0.8, 0.75, 0
+		visible	1
+		textscale	0.25
+		textalign	1
+
+		onTime 0 {
+			transition "WeapText::forecolor" "0.6 0.8 0.75 1" "0.6 0.8 0.75 0" "1500" "0.6" "0" ;
+			
+			if ("desktop::weapon" == 0) { 
+				transition "WeapIcon0::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+			}
+			if ("desktop::weapon" == 1) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+			}	
+			if ("desktop::weapon" == 2) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+			}			
+			if ("desktop::weapon" == 3) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 02" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+			}			
+			if ("desktop::weapon" == 4) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+			}			
+			if ("desktop::weapon" == 5) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+			}			
+			if ("desktop::weapon" == 6) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+			}			
+			if ("desktop::weapon" == 7) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+			}			
+			if ("desktop::weapon" == 8) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+			}			
+			if ("desktop::weapon" == 10) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+			}			
+			if ("desktop::weapon" == 11) { 
+				transition "WeapIcon0::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon1::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon2::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon3::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon4::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon5::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon6::matcolor" "1 1 1 0.2" "1 1 1 0" "1500" ;
+				transition "WeapIcon7::matcolor" "1 1 1 0.4" "1 1 1 0" "1500" ;
+				transition "WeapIcon8::matcolor" "1 1 1 0.6" "1 1 1 0" "1500" ;
+				transition "WeapIcon10::matcolor" "1 1 1 0.8" "1 1 1 0" "1500" ;
+				transition "WeapIcon11::matcolor" "1 1 1 1" "1 1 1 0" "1500" ;
+			}			
+			
+		}
+	}
+
+	windowDef BorderItem1 {
+		rect		384, 416, 256, 64
+		matcolor	0.2, 0.45, 0.4, 0
+		background	"guis/assets/hud/pershud/rborder1"
+	}
+
+	windowDef BgItem1 {
+		rect		384, 416, 256, 64
+		matcolor	0.09, 0.26, 0.26, 0
+		background	"guis/assets/hud/pershud/rbg1"
+	}
+
+	windowDef BorderItem2 {
+		rect		510, 386, 128, 64
+		matcolor	0.2, 0.45, 0.4, 0
+		background	"guis/assets/hud/pershud/rborder2"
+	}
+
+	windowDef BgItem2 {
+		rect		510, 386, 128, 64
+		matcolor	0.09, 0.26, 0.26, 0
+		background	"guis/assets/hud/pershud/rbg2"
+	}
+
+
+	windowDef LinesItem1 {
+		rect		384, 416, 256, 64
+		matcolor	0.6, 0.8, 1, 0
+		background	"guis/assets/hud/pershud/rlines1"
+	}
+
+	windowDef ObjectItem {
+		rect		535 ,384 ,64, 64 
+		background	"gui::itemicon"
+	//	background	"guis/assets/hud/items/redkey"
+		variablebackground 1
+		matcolor	1, 0.9, 1, 0
+		visible		1
+	}
+
+	windowDef Object {
+		text		"gui::itemtext"
+		rect		12 ,429 ,200 ,15 
+		forecolor	0.4, 0.6, 0.6, 0
+		font		"fonts/bank"
+		textscale	0.25
+		visible		1
+	}
+
+	windowDef Warmup {  
+		text    	"gui::warmuptext"  
+		rect 		0, 360, 640, 30
+		textalign	1
+		forecolor	0.8, 0.1, 0.1, 1
+		textscale 	0.35 
+		visible		"gui::warmup"
+		font		"fonts/bank"
+		shadow		1
+	}
+	
+//////////////////////////////////////////
+//ANIMATION
+//////////////////////////////////////////
+
+	windowDef animObject {
+		rect	0 ,0 ,0 ,0 
+		notime	1
+
+		onTime 0 {
+			transition	"Object::forecolor" "1 1 1 1" "1 0.8 0.2 1" "200" ;
+		}
+		onTime 2000 {
+			transition	"object::forecolor" "1 0.8 0.2 1" "0.4 0.6 0.6 0" "1000" ;
+		}
+	}
+
+//////////////////////////////////////////
+//IDENTIFY PLAYERS
+//////////////////////////////////////////
+	
+	float fadeon 0
+
+	// aim_text was set, flash up the name
+	onNamedEvent aim_flash {
+		// make sure no parasite onTime b0rks us
+		set "desktop::fadeon" "0" ;
+		set "AimingAt::visible" "1" ;
+		set "AimingRect1::visible" "0" ;
+		set "AimingRect2::visible" "0" ;
+		set "AimingRect3::visible" "0" ;
+		set "AimingRect4::visible" "0" ;
+		set "AimingAt::forecolor" "1 1 1 1" ;
+		if ( "gui::aim_color" == 1 ) {
+			set "AimingRect1::visible" "1" ;
+			set "AimingRect1::backcolor" "1.0 0.0 0.0 0.25" ;
+		} else if ( "gui::aim_color" == 2 ) {
+			set "AimingRect2::visible" "1" ;			
+			set "AimingRect2::backcolor" "0.0 0.8 0.1 0.25" ;
+		} else if ( "gui::aim_color" == 3 ) {
+			set "AimingRect3::visible" "1" ;			
+			set "AimingRect3::backcolor" "0.2 0.5 0.8 0.25" ;
+		} else if ( "gui::aim_color" == 4 ) {
+			set "AimingRect4::visible" "1" ;			
+			set "AimingRect4::backcolor" "1.0 0.8 0.1 0.25" ;
+		}
+	}
+	
+	// start a fade
+	onNamedEvent aim_fade {
+		set "desktop::fadeon" "1" ;
+		resetTime "AimingAt" "0" ;		
+		if ( "gui::aim_color" == 1 ) {
+			resetTime "AimingRect1" "0" ;
+		} else if ( "gui::aim_color" == 2 ) {
+			resetTime "AimingRect2" "0" ;
+		} else if ( "gui::aim_color" == 3 ) {
+			resetTime "AimingRect3" "0" ;
+		} else if ( "gui::aim_color" == 4 ) {
+			resetTime "AimingRect4" "0" ;
+		}
+	}
+	
+	onNamedEvent aim_clear {
+		set "AimingAt::visible" "0" ;
+		set "AimingRect1::visible" "0" ;
+		set "AimingRect2::visible" "0" ;
+		set "AimingRect3::visible" "0" ;
+		set "AimingRect4::visible" "0" ;		
+	}
+	
+	windowDef AimingRect1 {
+		rect		200, 450, 238, 20
+		time		0
+		visible		0
+		backcolor	1.0, 0.0, 0.0, 0.25
+		onTime 1500 {
+			if ( "desktop::fadeon" == 1 ) {
+				transition "AimingRect1::backcolor" "1.0 0.0 0.0 0.25" "1.0 0.0 0.0 0" "500" ;
+			}
+		}
+		onTime 2000 {
+			if ( "desktop::fadeon" == 1 ) {
+				set "AimingRect1::visible" "0" ;	
+			}
+		}
+	}
+	
+	windowDef AimingRect2 {
+		rect		200, 450, 238, 20
+		time		0
+		visible		0
+		backcolor	0.0, 0.8, 0.1, 0.25
+		onTime 1500 {
+			if ( "desktop::fadeon" == 1 ) {
+				transition "AimingRect2::backcolor" "0.0 0.8 0.1 0.25" "0.0 0.8 0.1 0" "500" ;
+			}
+		}
+		onTime 2000 {
+			if ( "desktop::fadeon" == 1 ) {
+				set "AimingRect2::visible" "0" ;	
+			}
+		}
+	}
+	
+	windowDef AimingRect3 {
+		rect		200, 450, 238, 20
+		time		0
+		visible		0
+		backcolor	0.2, 0.5, 0.8, 0.25
+		onTime 1500 {
+			if ( "desktop::fadeon" == 1 ) {
+				transition "AimingRect3::backcolor" "0.2 0.5 0.8 0.25" "0.2 0.5 0.8 0" "500" ;
+			}
+		}
+		onTime 2000 {
+			if ( "desktop::fadeon" == 1 ) {
+				set "AimingRect3::visible" "0" ;	
+			}
+		}
+	}
+	
+	windowDef AimingRect4 {
+		rect		200, 450, 238, 20
+		time		0
+		visible		0
+		backcolor	1.0, 0.8, 0.1, 0.25
+		onTime 1500 {
+			if ( "desktop::fadeon" == 1 ) {
+				transition "AimingRect4::backcolor" "1.0 0.8 0.1 0.25" "1.0 0.8 0.1 0" "500" ;
+			}
+		}
+		onTime 2000 {
+			if ( "desktop::fadeon" == 1 ) {
+				set "AimingRect4::visible" "0" ;	
+			}
+		}
+	}
+
+	windowDef AimingAt {
+		rect		200, 450, 238, 20
+		text		"gui::aim_text"
+		textalign	1
+		textscale	0.25
+		font		"fonts/an"
+		shadow		1
+		visible		0
+		notime		1
+
+		onTime 1500 {
+			if ( "desktop::fadeon" == 1 ) {
+				transition "AimingAt::forecolor" "1 1 1 1" "1 0.8 0.2 0" "500" ;
+			}
+		}
+		onTime 2000 {
+			if ( "desktop::fadeon" == 1 ) {
+				set "AimingAt::visible" "0" ;	
+			}
+		}
+	}
+
+	#include "guis/vr_weapon_wheel.gui"
+}

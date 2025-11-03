@@ -237,20 +237,20 @@ import static android.system.Os.setenv;
 		//Create file structure
 		base.mkdirs();
 		copy_common_assets(base);
-		copy_common_assets(cdoom);
-		copy_common_assets(doom2);
-		copy_common_assets(roe);
-		copy_common_assets(lm);
 		copy_asset(root.getAbsolutePath(), "commandline.txt", false);
-		copy_asset(cdoom.getAbsolutePath(), "pak399cd.pk4", true);
-		copy_asset(doom2.getAbsolutePath(), "pak399d2.pk4", true);
-		copy_asset(roe.getAbsolutePath(), "pak399roe.pk4", true);
-		copy_asset(lm.getAbsolutePath(), "pak399lm.pk4", true);
+		copy_optional_assets(cdoom, "pak399cd.pk4");
+		copy_optional_assets(doom2, "pak399d2.pk4");
+		copy_optional_assets(roe, "pak399roe.pk4");
+		copy_optional_assets(lm, "pak399lm.pk4");
 
 		//delete incompatible files
-		new File(cdoom, "Xpak400.pk4").delete();
-		for (int i = 0; i < 10; i++) {
-			new File(lm, "pak00" + i + ".pk4").delete();
+		if (cdoom.exists()) {
+			new File(cdoom, "Xpak400.pk4").delete();
+		}
+		if (lm.exists()) {
+			for (int i = 0; i < 10; i++) {
+				new File(lm, "pak00" + i + ".pk4").delete();
+			}
 		}
 
 		if (exitAfterCopy)
@@ -346,7 +346,14 @@ import static android.system.Os.setenv;
 			copy_asset(path.getAbsolutePath(), "quest3_default.cfg", true);
 		}
 	}
-	
+
+	public void copy_optional_assets(File path, String file) {
+		if (path.exists()) {
+			copy_common_assets(path);
+			copy_asset(path.getAbsolutePath(), file, true);
+		}
+	}
+
 	public void copy_asset(String path, String name, boolean force) {
 		File f = new File(path + "/" + name);
 		if (!f.exists() || force) {

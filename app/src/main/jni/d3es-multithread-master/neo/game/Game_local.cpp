@@ -865,6 +865,13 @@ void idGameLocal::SetVRClientInfo(vrClientInfo *pVR)
 {
 	pVRClientInfo = pVR;
 
+	//Lubos BEGIN
+	idPlayer* player = GetLocalPlayer();
+	if (player) {
+		player->SetVRClientInfo(pVRClientInfo);
+	}
+	//LUbos END
+
 	static bool firstTime = true;
 	if (firstTime) {
 		common->HapticEnable();
@@ -2583,7 +2590,7 @@ void idGameLocal::SetMSec(int value) const {
     if ((value <= 0) || (value > msec)) {
         value = msec;
     }
-    if (cvarSystem) {
+    if (cvarSystem && !gameLocal.isMultiplayer) {
         cvarSystem->SetCVarFloat("vr_timescale", (float)value / (float)msec);
     }
 }

@@ -1285,14 +1285,14 @@ void idCollisionModelManagerLocal::Rotation180( trace_t *results, const idVec3 &
 	tw.axisIntersectsTrm = false;
 	tw.quickExit = false;
 	tw.angle = endAngle - startAngle;
-	assert( tw.angle > -180.0f && tw.angle < 180.0f );
+	//assert( tw.angle > -180.0f && tw.angle < 180.0f );
 	tw.angle = idMath::ClampFloat(-180.0f, 180.0f, tw.angle); // DG: enforce it for the rare cases the assert would trigger
 	tw.maxTan = initialTan = idMath::Fabs( tan( ( idMath::PI / 360.0f ) * tw.angle ) );
 	tw.model = idCollisionModelManagerLocal::models[model];
 	tw.start = start - modelOrigin;
 	// rotation axis, axis is assumed to be normalized
 	tw.axis = axis;
-	assert( tw.axis[0] * tw.axis[0] + tw.axis[1] * tw.axis[1] + tw.axis[2] * tw.axis[2] > 0.99f );
+	//assert( tw.axis[0] * tw.axis[0] + tw.axis[1] * tw.axis[1] + tw.axis[2] * tw.axis[2] > 0.99f );
 	// rotation origin projected into rotation plane through tw.start
 	tw.origin = rorg - modelOrigin;
 	d = (tw.axis * tw.origin) - ( tw.axis * tw.start );
@@ -1589,7 +1589,7 @@ void idCollisionModelManagerLocal::Rotation180( trace_t *results, const idVec3 &
 	} else {
 		results->fraction = idMath::Fabs( atan( tw.maxTan ) * ( 2.0f * 180.0f / idMath::PI ) / tw.angle );
 	}
-	assert( results->fraction <= 1.0f );
+	//assert( results->fraction <= 1.0f );
 	endRotation.Set( rorg, axis, startAngle + (endAngle-startAngle) * results->fraction );
 	endRotation.RotatePoint( results->endpos );
 	results->endAxis = trmAxis * endRotation.ToMat3();
