@@ -572,6 +572,10 @@ int idGrabber::Update( idPlayer* player, idWeapon* weap, bool hide )
             StopDrag( true );
             return 3;
         }
+        else
+        {
+            common->HapticEvent("chainsaw_fire", vr_weaponHand.GetInteger() ? 1 : 2, 0, 100, 0, 0);
+        }
     }
 
     owner = player;
