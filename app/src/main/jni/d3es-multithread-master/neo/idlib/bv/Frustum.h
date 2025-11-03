@@ -186,7 +186,7 @@ ID_INLINE void idFrustum::MoveNearDistance( float dNear ) {
 }
 
 ID_INLINE void idFrustum::MoveFarDistance( float dFar ) {
-	assert( dFar > this->dNear );
+	//assert( dFar > this->dNear );
 	float scale = dFar / this->dFar;
 	this->dFar = dFar;
 	this->dLeft *= scale;

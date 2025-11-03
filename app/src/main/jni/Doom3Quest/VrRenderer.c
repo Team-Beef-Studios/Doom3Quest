@@ -6,6 +6,7 @@
 #include <string.h>
 
 XrFovf fov;
+XrPosef pose[ovrMaxNumEyes];
 XrView* projections;
 bool initialized = false;
 bool stageBoundsDirty = true;
@@ -295,6 +296,11 @@ bool VR_InitFrame( engine_t* engine ) {
 	VR_SetConfigFloat(VR_CONFIG_VIEWPORT_FOVY, ToDegrees(fovy));
 	fov.angleDown = -fovy / 2.0f;
 	fov.angleUp = fovy / 2.0f;
+
+	ovrFramebuffer* frameBuffer = &engine->appState.Renderer.FrameBuffer;
+	frameBuffer->TextureSwapChainIndex++;
+	frameBuffer->TextureSwapChainIndex %= frameBuffer->TextureSwapChainLength;
+
 	return true;
 }
 
@@ -307,6 +313,10 @@ void VR_BeginFrame( engine_t* engine ) {
 	beginFrameDesc.type = XR_TYPE_FRAME_BEGIN_INFO;
 	beginFrameDesc.next = NULL;
 	OXR(xrBeginFrame(engine->appState.Session, &beginFrameDesc));
+
+	for (int eye = 0; eye < ovrMaxNumEyes; eye++) {
+		memcpy(&pose[eye], &projections[eye].pose, sizeof(XrPosef));
+	}
 
 	ovrFramebuffer_Acquire(&engine->appState.Renderer.FrameBuffer);
 	ovrFramebuffer_SetCurrent(&engine->appState.Renderer.FrameBuffer);
@@ -339,13 +349,13 @@ void VR_FinishFrame( engine_t* engine ) {
 	int vrMode = vrConfig[VR_CONFIG_MODE];
 	XrCompositionLayerProjectionView projection_layer_elements[2] = {};
 	if ((vrMode == VR_MODE_MONO_6DOF) || (vrMode == VR_MODE_STEREO_6DOF)) {
-		VR_SetConfigFloat(VR_CONFIG_MENU_YAW, XrQuaternionf_ToEulerAngles(projections[0].pose.orientation).y);
+		VR_SetConfigFloat(VR_CONFIG_MENU_YAW, XrQuaternionf_ToEulerAngles(pose[0].orientation).y);
 
 		for (int eye = 0; eye < ovrMaxNumEyes; eye++) {
 			ovrFramebuffer* frameBuffer = &engine->appState.Renderer.FrameBuffer;
 			memset(&projection_layer_elements[eye], 0, sizeof(XrCompositionLayerProjectionView));
 			projection_layer_elements[eye].type = XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW;
-			projection_layer_elements[eye].pose = projections[eye].pose;
+			projection_layer_elements[eye].pose = pose[eye];
 			projection_layer_elements[eye].fov = fov;
 
 			memset(&projection_layer_elements[eye].subImage, 0, sizeof(XrSwapchainSubImage));
@@ -370,9 +380,9 @@ void VR_FinishFrame( engine_t* engine ) {
 		float distance = VR_GetConfigFloat(VR_CONFIG_CANVAS_DISTANCE);
 		float menuYaw = ToRadians(VR_GetConfigFloat(VR_CONFIG_MENU_YAW));
 		XrVector3f pos = {
-				projections[0].pose.position.x - sinf(menuYaw) * distance,
-				projections[0].pose.position.y - 1.5f,
-				projections[0].pose.position.z - cosf(menuYaw) * distance
+				pose[0].position.x - sinf(menuYaw) * distance,
+				pose[0].position.y - 1.5f,
+				pose[0].position.z - cosf(menuYaw) * distance
 		};
 		XrVector3f yawAxis = {0, 1, 0};
 		XrQuaternionf yaw = XrQuaternionf_CreateFromVectorAngle(yawAxis, menuYaw);

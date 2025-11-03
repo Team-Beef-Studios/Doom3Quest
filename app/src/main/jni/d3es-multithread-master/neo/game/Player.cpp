@@ -230,6 +230,7 @@ CLASS_DECLARATION( idActor, idPlayer )
     // Koz end
 END_CLASS
 
+const int MAX_RESPAWN_TIME_MP = 2000; //Lubos: in multiplayer is for some reason the timing different
 const int MAX_RESPAWN_TIME = 10000;
 const int RAGDOLL_DEATH_TIME = 3000;
 const int MAX_PDAS = 64;
@@ -2222,7 +2223,7 @@ void idPlayer::Spawn( void ) {
         {
             if( hands[h].weapon )
             {
-                if( !game->isVR ) hands[ h ].weapon->LowerWeapon(); // Koz
+                if( !game->isVR && pVRClientInfo ) hands[ h ].weapon->LowerWeapon(); // Koz
             }
             hands[ h ].idealWeapon = weapon_fists;
         }
@@ -4056,7 +4057,8 @@ void idPlayer::DrawHUD( idUserInterface *_hud ) {
 
 	UpdateHudStats( _hud );
 
-	_hud->SetStateString( "weapicon",  hands[ vr_weaponHand.GetInteger() ].weapon->Icon() );
+	if ( !gameLocal.isMultiplayer )
+		_hud->SetStateString( "weapicon",  hands[ vr_weaponHand.GetInteger() ].weapon->Icon() );
 
 	// FIXME: this is temp to allow the sound meter to show up in the hud
 	// it should be commented out before shipping but the code can remain
@@ -5426,7 +5428,17 @@ void idPlayer::UpdatePowerUps( void ) {
 		}
 	}
 
-	if ( health > 0 ) {
+	//Lubos BEGIN
+	if ( gameLocal.isMultiplayer && entityNumber == gameLocal.localClientNum ) {
+		const char *skin;
+		spawnArgs.GetString( "skin_invisibility", "", &skin );
+		renderEntity.customSkin =  declManager->FindSkin( skin );
+		if ( !pVRClientInfo || !pVRClientInfo->weapon_stabilised ) {
+			commonVr->currentFlashlightMode = FLASHLIGHT_HAND;
+		}
+	}
+	//Lubos END
+	else if ( health > 0 ) {
 		if ( powerUpSkin ) {
 			renderEntity.customSkin = powerUpSkin;
 		} else {
@@ -6370,14 +6382,14 @@ void idPlayerHand::NextWeapon( int dir )
         if (idealWeapon == WEAPON_CHAINSAW)
         {
         	//Start chainsaw idling haptic immediately
-            common->HapticEvent("chainsaw_idle", vr_weaponHand.GetInteger() ? 1 : 2, 1, 100, 0, 0);
+            //common->HapticEvent("chainsaw_idle", vr_weaponHand.GetInteger() ? 1 : 2, 1, 100, 0, 0);
         }
         else
 		{
             if (currentWeapon == WEAPON_CHAINSAW)
             {
                 //Stop all chainsaw haptics immediately
-                common->HapticStopEvent("chainsaw_idle");
+                //common->HapticStopEvent("chainsaw_idle");
                 common->HapticStopEvent("chainsaw_fire");
             }
 
@@ -7401,7 +7413,10 @@ void idPlayer::UpdateWeapon( void ) {
 	if ( gameLocal.isClient ) {
 		// clients need to wait till the weapon and it's world model entity
 		// are present and synchronized ( weapon.worldModel idEntityPtr to idAnimatedEntity )
-		if( !hands[ 0 ].weapon.GetEntity()->IsWorldModelReady() || !hands[ 1 ].weapon.GetEntity()->IsWorldModelReady() ) {
+		if( !hands[ 0 ].weapon.GetEntity() || !hands[ 0 ].weapon.GetEntity()->IsWorldModelReady() ) {
+			return;
+		}
+		if( !hands[ 1 ].weapon.GetEntity() || !hands[ 1 ].weapon.GetEntity()->IsWorldModelReady() ) {
 			return;
 		}
 	}
@@ -7454,7 +7469,7 @@ void idPlayer::UpdateWeapon( void ) {
 	}
 
 	if ( hiddenWeapon ) {
-        if( !game->isVR || commonVr->handInGui == false )
+        if( !game->isVR || !pVRClientInfo || commonVr->handInGui == false )
         {
             for( int h = 0; h < 2; h++ )
                 hands[ h ].weapon->LowerWeapon();  // KOZ FIXME HIDE WEAPon
@@ -7464,7 +7479,7 @@ void idPlayer::UpdateWeapon( void ) {
             hands[h].weapon->GetRenderEntity()->suppressShadowInViewID = 0;
     }
 
-    if( game->isVR && commonVr->handInGui )
+    if( game->isVR && pVRClientInfo && commonVr->handInGui )
     {
         for( int h = 0; h < 2; h++ )
             hands[ h ].weapon->GetRenderEntity()->suppressShadowInViewID = entityNumber + 1;
@@ -7637,7 +7652,8 @@ void idPlayer::UpdateTeleportAim()// idVec3 beamOrigin, idMat3 beamAxis )// idVe
     {
         if (vr_teleport.GetInteger() != 1)
             aimValidForTeleport = false;
-        teleportTarget->Hide();
+
+        if (teleportTarget) teleportTarget->Hide();
         return;
     }
 
@@ -8198,7 +8214,7 @@ void idPlayer::UpdateNeckPose()
 {
     static idAngles headAngles, lastView = ang_zero;
 
-    if ( !game->isVR ) return;
+    if ( !game->isVR || !pVRClientInfo ) return;
 
     // if showing the player body, move the head/neck based on HMD
     lastView = commonVr->lastHMDViewAxis.ToAngles();
@@ -8364,7 +8380,7 @@ void idPlayer::UpdateFocus( void ) {
 	start = GetEyePosition();
 
 	// Koz begin
-	if ( game->isVR ) // Koz fixme only when vr actually active.
+	if ( game->isVR && !gameLocal.isMultiplayer ) // Koz fixme only when vr actually active.
 	{
 		// Koz  in VR, if weapon equipped, use muzzle orientation to scan for accessible guis,
 		// otherwise use player center eye.
@@ -8869,7 +8885,7 @@ bool idPlayer::UpdateFocusPDA()
 	guiPoint_t	pt;
 	sysEvent_t	ev;
 
-	if ( !game->isVR || !( game->IsPDAOpen() || commonVr->VR_GAME_PAUSED || hands[0].currentWeapon == weapon_pda || hands[1].currentWeapon == weapon_pda ) )
+	if ( !game->isVR || !pVRClientInfo || !( game->IsPDAOpen() || commonVr->VR_GAME_PAUSED || hands[0].currentWeapon == weapon_pda || hands[1].currentWeapon == weapon_pda ) )
 	{
 		touching = false;
 		return false;
@@ -10630,7 +10646,7 @@ void idPlayer::SetClipModel( void ) {
 		physicsObj.SetClipModel( newClip, 1.0f );
 	}
 
-    if ( game->isVR )
+    if ( game->isVR && pVRClientInfo )
     {
         commonVr->bodyClip = newClip;
 
@@ -10797,6 +10813,9 @@ void idPlayer::PerformImpulse( int impulse ) {
 		}
         //Lubos BEGIN
         case IMPULSE_23: {
+            if (!pVRClientInfo) {
+                return;
+            }
             gameLocal.Printf("Show weapon wheel");
             if (objectiveSystemOpen) {
                 TogglePDA(1 - vr_weaponHand.GetInteger());
@@ -11300,14 +11319,16 @@ void idPlayer::InitPlayerBones()
 	ik_handAttacher[0] = animator.GetJointHandle( "RhandWeap" );
 	if ( ik_handAttacher[0] == INVALID_JOINT )
 	{
-		gameLocal.Error( "Joint RhandWeap not found for player anim default\n" );
+		gameLocal.Warning( "Joint RhandWeap not found for player anim default\n" );
+		ik_handAttacher[0] = ik_hand[0];
 	}
 
 	ik_handAttacher[1] = animator.GetJointHandle( "LhandWeap" );
 
 	if ( ik_handAttacher[1] == INVALID_JOINT )
 	{
-		gameLocal.Error( "Joint LhandWeap not found for player anim default\n" );
+		gameLocal.Warning( "Joint LhandWeap not found for player anim default\n" );
+		ik_handAttacher[1] = ik_hand[1];
 	}
 
 	idStr animPre = "default";// this is the anim that has the default/normal hand and weapon attacher orientations (relationsh
@@ -11633,7 +11654,7 @@ void idPlayer::Move( void ) {
     {
         idVec3	org;
         idMat3	axis;
-        if ( !game->isVR )
+        if ( !game->isVR || !pVRClientInfo )
         {
             GetViewPos( org, axis ); // Koz default movement
             physicsObj.SetPlayerInput( usercmd, axis[0] );
@@ -11774,7 +11795,7 @@ void idPlayer::Move( void ) {
 		newEyeOffset = pm_deadviewheight.GetFloat();
 	} else if ( physicsObj.IsCrouching() ) {
         // Koz begin
-        if ( game->isVR )
+        if ( game->isVR && pVRClientInfo )
         {
             if ( vr_crouchMode.GetInteger() != 0 || (usercmd.buttons & BUTTON_CROUCH) )
             {
@@ -12006,7 +12027,7 @@ void idPlayer::Move_Interpolated( float fraction )
     {
         // Koz begin
         // dont change the eyeoffset if using full motion crouch.
-        if ( game->isVR )
+        if ( game->isVR && pVRClientInfo )
         {
             if ( vr_crouchMode.GetInteger() != 0 || (usercmd.buttons & BUTTON_CROUCH) )
             {
@@ -12024,7 +12045,7 @@ void idPlayer::Move_Interpolated( float fraction )
         newEyeOffset = 0.0f;
     }
         // Koz begin
-    else if ( game->isVR )
+    else if ( game->isVR && pVRClientInfo )
     {
         newEyeOffset = pm_normalviewheight.GetFloat();
         //Carl: Our body is too tall, so move our eyes higher so they don't clip the body
@@ -12942,8 +12963,13 @@ void idPlayer::Kill( bool delayRespawn, bool nodamage ) {
 			if ( delayRespawn ) {
 				forceRespawn = false;
 				int delay = spawnArgs.GetFloat( "respawn_delay" );
-				minRespawnTime = gameLocal.time + SEC2MS( delay );
-				maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME;
+				if ( gameLocal.isMultiplayer ) {
+					minRespawnTime = gameLocal.time + MAX_RESPAWN_TIME_MP / 4;
+					maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME_MP;
+				} else {
+					minRespawnTime = gameLocal.time + SEC2MS( delay );
+					maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME;
+				}
 			}
 		}
 	}
@@ -12984,7 +13010,10 @@ void idPlayer::Killed( idEntity *inflictor, idEntity *attacker, int damage, cons
 
 	animator.ClearAllJoints();
 
-	if ( StartRagdoll() ) {
+	if ( gameLocal.isMultiplayer ) {
+		minRespawnTime = gameLocal.time + MAX_RESPAWN_TIME_MP / 4;
+		maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME_MP;
+	} else if ( StartRagdoll() ) {
 		pm_modelView.SetInteger( 0 );
 		minRespawnTime = gameLocal.time + RAGDOLL_DEATH_TIME;
 		maxRespawnTime = minRespawnTime + MAX_RESPAWN_TIME;
@@ -14097,7 +14126,7 @@ Calculate the bobbing position of the view weapon
 
 void idPlayer::CalculateViewWeaponPos( int hand, idVec3& origin, idMat3& axis )
 {
-	if ( game->isVR )
+	if ( game->isVR && pVRClientInfo )
 	{
 		CalculateViewWeaponPosVR( hand, origin, axis );
 		return;
@@ -14665,7 +14694,7 @@ void idPlayer::CalculateViewFlashlightPos( idVec3 &origin, idMat3 &axis, idVec3 
         {
             idAngles flashlightAx = axis.ToAngles();
             flashlightMode = FLASHLIGHT_HEAD;
-            if( game->isVR ) axis = idAngles( flashlightAx.pitch, flashlightAx.yaw - commonVr->bodyYawOffset, flashlightAx.roll ).ToMat3();
+            if( game->isVR && pVRClientInfo ) axis = idAngles( flashlightAx.pitch, flashlightAx.yaw - commonVr->bodyYawOffset, flashlightAx.roll ).ToMat3();
 
         }
     }
@@ -14682,7 +14711,7 @@ void idPlayer::CalculateViewFlashlightPos( idVec3 &origin, idMat3 &axis, idVec3 
         {
             idAngles flashlightAx = axis.ToAngles();
             flashlightMode = FLASHLIGHT_INVENTORY;
-            if( game->isVR ) axis = idAngles( flashlightAx.pitch, flashlightAx.yaw - commonVr->bodyYawOffset, flashlightAx.roll ).ToMat3();
+            if( game->isVR && pVRClientInfo ) axis = idAngles( flashlightAx.pitch, flashlightAx.yaw - commonVr->bodyYawOffset, flashlightAx.roll ).ToMat3();
         }
         else
             flashlightMode = FLASHLIGHT_GUN;
@@ -14763,7 +14792,7 @@ void idPlayer::CalculateViewFlashlightPos( idVec3 &origin, idMat3 &axis, idVec3 
             static idVec3 baseAdjustPos = idVec3( -8.0f, -20.0f, -10.0f ); // rt, fwd, up
             //static idVec3 baseAdjustPos = idVec3( 0, 0, 0 ); // rt, fwd, up
 
-            if ( game->isVR )
+            if ( game->isVR && pVRClientInfo )
             {
                 baseAdjustPos.x = vr_flashlightBodyPosX.GetFloat();
                 baseAdjustPos.y = vr_flashlightBodyPosY.GetFloat();
@@ -14965,7 +14994,7 @@ idPlayer::GetViewPos
 void idPlayer::GetViewPos( idVec3 &origin, idMat3 &axis ) const {
 	idAngles angles;
 
-    if ( game->isVR )
+    if ( game->isVR && pVRClientInfo )
     {
         GetViewPosVR( origin, axis );
         return;
@@ -15435,7 +15464,7 @@ void idPlayer::CalculateRenderView( void ) {
 		gameLocal.Printf( "%s : %s\n", renderView->vieworg.ToString(), renderView->viewaxis.ToAngles().ToString() );
 	}
 
-	if ( game->isVR )
+	if ( game->isVR && pVRClientInfo )
 	{
 
 		// Koz headtracker does not modify the model rotations
@@ -16108,10 +16137,11 @@ idPlayer::Event_DisableWeapon
 void idPlayer::Event_DisableWeapon( void ) {
 	hiddenWeapon = gameLocal.world->spawnArgs.GetBool( "no_Weapons" );
 	weaponEnabled = false;
-    for( int h = 0; h < 2; h++ )
-    {
-        if( hands[ h ].weapon )
-            hands[ h ].weapon->EnterCinematic();
+    if ( !gameLocal.isMultiplayer ) {
+        for( int h = 0; h < 2; h++ ) {
+            if( hands[ h ].weapon )
+                hands[ h ].weapon->EnterCinematic();
+        }
     }
 }
 
@@ -16217,7 +16247,7 @@ idPlayer::Event_GetFlashState // get flashlight state
 void idPlayer::Event_GetFlashState() // get flashlight state
 {
     static int flashlighton;
-    flashlighton = flashlight->lightOn  ? 1 : 0 ;
+    flashlighton = flashlight && flashlight->lightOn  ? 1 : 0 ;
     // Koz debug common->Printf( "Returning flashlight state = %d\n",flashlighton );
     idThread::ReturnInt( flashlighton );
 }
@@ -16809,7 +16839,6 @@ idPlayer::ClientPredictionThink
 ================
 */
 void idPlayer::ClientPredictionThink( void ) {
-
     UpdateSkinSetup();
 
     renderEntity_t *headRenderEnt;
@@ -16938,7 +16967,7 @@ void idPlayer::ClientPredictionThink( void ) {
 		renderEntity.suppressShadowInViewID	= entityNumber+1;
 		if ( headRenderEnt ) {
             // Koz begin
-            if ( game->isVR )
+            if ( game->isVR && pVRClientInfo )
             {
                 headRenderEnt->suppressShadowInViewID = 0; //Carl:Draw the head's shadow when showing the body
             } else {

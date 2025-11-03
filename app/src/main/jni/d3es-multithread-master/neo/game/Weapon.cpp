@@ -2047,7 +2047,7 @@ idWeapon::GetProjectileLaunchOriginAndAxis
 void idWeapon::GetProjectileLaunchOriginAndAxis( idVec3& origin, idMat3& axis )
 {
     assert( owner != NULL );
-    if ( game->isVR )
+    if ( game->isVR && !gameLocal.isMultiplayer )
     {
         static weapon_t curWeap = WEAPON_NONE;
 
@@ -2083,6 +2083,10 @@ void idWeapon::GetProjectileLaunchOriginAndAxis( idVec3& origin, idMat3& axis )
                 break;
 
         }
+        return;
+    } else {
+        origin = renderEntity.origin;
+        axis = renderEntity.axis;
         return;
     }
 
@@ -2343,7 +2347,7 @@ void idWeapon::EndAttack( void ) {
 		currentWeapon = IdentifyWeapon();
 		if (currentWeapon == WEAPON_CHAINSAW)
 		{
-			common->HapticEvent("chainsaw_idle", vr_weaponHand.GetInteger() ? 1 : 2, 1, 100, 0, 0);
+			//common->HapticEvent("chainsaw_idle", vr_weaponHand.GetInteger() ? 1 : 2, 1, 100, 0, 0);
 		}
 	}
 }
@@ -4590,6 +4594,11 @@ void idWeapon::Event_LaunchProjectilesEllipse(int num_projectiles, float spreada
     // calculate the muzzle position
     GetProjectileLaunchOriginAndAxis( muzzleOrigin, muzzleAxis );
 
+    // Lubos: shotgun haptics
+    int position = vr_weaponHand.GetInteger() ? 1 : 2;
+    position = commonVr->GetWeaponStabilised() ? 4 : position;
+    common->HapticEvent("shotgun_fire",  position, 0, 100, 0, 0);
+
     // calculate the muzzle position
     /*if (barrelJointView != INVALID_JOINT && projectileDict.GetBool("launchFromBarrel")) {
         // there is an explicit joint for the muzzle
@@ -4804,7 +4813,7 @@ void idWeapon::Event_Melee( void ) {
 	}
 	if (currentWeapon == WEAPON_CHAINSAW)
 	{
-		common->HapticStopEvent("chainsaw_idle");
+		//common->HapticStopEvent("chainsaw_idle");
 		common->HapticEvent("chainsaw_fire", vr_weaponHand.GetInteger() ? 1 : 2, 0, 100, 0, 0);
 	}
 

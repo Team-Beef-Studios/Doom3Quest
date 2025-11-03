@@ -545,9 +545,11 @@ void idActor::Spawn( void ) {
 	walkIK.Init( this, IK_ANIM, modelOffset );
 
 	// Koz begin
-	armIK.Init( this, IK_ANIM, modelOffset );
-	if ( armIK.IsInitialized() ) {
-		common->Printf( "ArmIK initialized for %s.\n",name.c_str() );
+	if ( !gameLocal.isMultiplayer ) {
+		armIK.Init( this, IK_ANIM, modelOffset );
+		if ( armIK.IsInitialized() ) {
+			common->Printf( "ArmIK initialized for %s.\n",name.c_str() );
+		}
 	}
 	// Koz end
 

@@ -679,6 +679,7 @@ JNIEXPORT void JNICALL Java_com_drbeef_doom3quest_GLES3JNILib_onCreate( JNIEnv *
 	if (strcmp(vendor, "PICO") == 0) {
 		VR_SetPlatformFLag(VR_PLATFORM_CONTROLLER_PICO, true);
 		VR_SetPlatformFLag(VR_PLATFORM_EXTENSION_INSTANCE, true);
+		VR_SetPlatformFLag(VR_PLATFORM_EXTENSION_PERFORMANCE, true);
 		VR_SetPlatformFLag(VR_PLATFORM_EXTENSION_REFRESH, true);
 	} else {
 		VR_SetPlatformFLag(VR_PLATFORM_CONTROLLER_QUEST, true);
