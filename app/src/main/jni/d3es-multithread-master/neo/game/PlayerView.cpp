@@ -36,6 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "PlayerView.h"
 
+#define CLIP(a) ((a)<0?0:(a)>1?1:(a))
+
 const int IMPULSE_DELAY = 150;
 /*
 ==============
@@ -47,7 +49,7 @@ idPlayerView::idPlayerView() {
 	memset( &view, 0, sizeof( view ) );
 	player = NULL;
 	dvMaterial = declManager->FindMaterial( "_scratch" );
-	fxMaterial = declManager->FindMaterial( "_fxImage" );
+	fxMaterial = declManager->FindMaterial( "_scratch2" );
 	tunnelMaterial = declManager->FindMaterial( "textures/decals/tunnel" );
 	armorMaterial = declManager->FindMaterial( "armorViewEffect" );
 	berserkMaterial = declManager->FindMaterial( "textures/decals/berserk" );
@@ -480,7 +482,7 @@ idPlayerView::SingleView
 ==================
 */
 
-void idPlayerView::SingleView( idUserInterface *hud, const renderView_t *view ) {
+void idPlayerView::SingleView( idUserInterface *hud, renderView_t *view ) {
 
 	// normal rendering
 	if ( !view ) {
@@ -620,6 +622,11 @@ void idPlayerView::SingleView( idUserInterface *hud, const renderView_t *view ) 
 	}
 	// Koz end
 
+	//Lubos BEGIN
+	if (cvarSystem->GetCVarInteger("r_skipBloomFX") == 0) {
+		BloomVision(hud, view);
+	}
+	//Lubos END
 }
 
 /*
@@ -627,7 +634,7 @@ void idPlayerView::SingleView( idUserInterface *hud, const renderView_t *view ) 
 idPlayerView::DoubleVision
 ===================
 */
-void idPlayerView::DoubleVision( idUserInterface *hud, const renderView_t *view, int offset ) {
+void idPlayerView::DoubleVision( idUserInterface *hud, renderView_t *view, int offset ) {
 
 	if ( !g_doubleVision.GetBool() ) {
 		SingleView( hud, view );
@@ -667,7 +674,7 @@ void idPlayerView::DoubleVision( idUserInterface *hud, const renderView_t *view,
 idPlayerView::BerserkVision
 ===================
 */
-void idPlayerView::BerserkVision( idUserInterface *hud, const renderView_t *view ) {
+void idPlayerView::BerserkVision( idUserInterface *hud, renderView_t *view ) {
     renderSystem->DirectFrameBufferStart();
 	renderSystem->CropRenderSize( 1024, 1024, true );
 	SingleView( hud, view );
@@ -761,7 +768,7 @@ void idPlayerView::ScreenFade() {
 idPlayerView::InfluenceVision
 ===================
 */
-void idPlayerView::InfluenceVision( idUserInterface *hud, const renderView_t *view ) {
+void idPlayerView::InfluenceVision( idUserInterface *hud, renderView_t *view ) {
     //Influence vision doesn't work with multiview, simplest thing is to do is to skip it altogether
     SingleView( hud, view );
     return;
@@ -789,6 +796,46 @@ void idPlayerView::InfluenceVision( idUserInterface *hud, const renderView_t *vi
 		int offset =  25 + sinf( gameLocal.slow.time );
 		DoubleVision( hud, view, pct * offset );
 	} */
+}
+
+//------------------------------------------------------
+// BloomVision
+//	Lubos
+//------------------------------------------------------
+void idPlayerView::BloomVision(idUserInterface *hud, renderView_t *view) {
+    // Prepare render pass
+    int bloom = cvarSystem->GetCVarInteger("r_skipBloomFX");
+    cvarSystem->SetCVarInteger("r_skipBloomFX", 1);
+    bool mono = view->forceMono;
+    view->bloomFXPass = true;
+    view->forceMono = true;
+
+    // Render into texture
+    renderSystem->DirectFrameBufferStart();
+    renderSystem->CropRenderSize( 2048, 2048, true );
+    SingleView( hud, view );
+    renderSystem->CaptureRenderToImage( "_scratch2" );
+    renderSystem->UnCrop();
+    renderSystem->DirectFrameBufferEnd();
+
+    // Restore previous render state
+    cvarSystem->SetCVarInteger("r_skipBloomFX", bloom);
+    view->bloomFXPass = false;
+    view->forceMono = mono;
+
+    // Render texture on the screen
+    int range = 3;
+    float step = 0.005f;
+    float intensity = 0.05f;
+    for (int x = -range; x <= range; x++) {
+        for (int y = -range; y <= range; y++) {
+            renderSystem->SetColor4( intensity, intensity, intensity, 0.25f );
+            renderSystem->DrawStretchPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+                                          CLIP(x * step), CLIP(1 + y * step),
+                                          CLIP(1 + x * step), CLIP(y * step),
+                                          fxMaterial );
+        }
+    }
 }
 
 /*

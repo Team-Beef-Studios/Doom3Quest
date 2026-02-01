@@ -2313,6 +2313,44 @@
 					cvar		"r_brightness"
 				}
 			}
+
+			// Bloom FX
+			windowDef vr_controls_weapontoggle {
+				rect		0, 154, 400, 20
+
+				windowDef vr_background_L {
+					rect     	0, 0, 8, 16
+					background  "gui/mainmenu/select_edge"
+					matcolor 	0, 0, 0, 1
+					noevents 	1
+				}
+				windowDef vr_background_M {
+					rect     	8, 0, 304, 16
+					background  "gui/mainmenu/select_border"
+					matcolor 	0, 0, 0, 1
+					noevents 	1
+				}
+				windowDef vr_background_R {
+					rect     	312, 0, 8, 16
+					background  "gui/mainmenu/select_angle"
+					matcolor 	0, 0, 0, 1
+					noevents 	1
+				}
+				windowDef vr_name {
+					rect		1, -1, 120, 20
+					text		"Bloom FX"
+					textscale   0.2
+				}
+				choiceDef vr_choice {
+					rect		121, -1, 320, 20
+					cvar		"r_skipBloomFX"
+					choices		"On (only on newer HMDs);Off"
+					values		"0;1"
+					choiceType	1
+					textscale   0.2
+					forecolor   0.6, 0.8, 0.8, 1
+				}
+			}
 		}
 
 		windowDef vr_cheats {
