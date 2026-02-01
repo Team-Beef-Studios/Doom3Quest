@@ -953,7 +953,7 @@
 				}
 				windowDef vr_name {
 					rect		1, -1, 300, 40
-					text		"Pico 3: 72hz, SS 1.1, no shadows"
+					text		"Pico 4: 72hz, SS 1.1, flashlight only shadows"
 					textscale   0.2
 				}				
 			}
@@ -981,7 +981,7 @@
 				}
 				windowDef vr_name {
 					rect		1, -1, 300, 40
-					text		"Pico 4: 72hz, SS 1.1, flashlight only shadows"
+					text		"Pico 4 Ultra: 72hz, SS 1.1, full shadows"
 					textscale   0.18
 				}				
 			}
@@ -1009,7 +1009,7 @@
 				}
 				windowDef vr_name {
 					rect		1, -1, 400, 40
-					text		"Pico 4 Ultra: 72hz, SS 1.3, flashlight only shadows"
+					text		"Quest 2: 72hz, SS 1.1, flashlight only shadows"
 					textscale   0.18
 				}				
 			}
@@ -1037,7 +1037,7 @@
 				}
 				windowDef vr_name {
 					rect		1, -1, 400, 40
-					text		"Pico 4 Ultra: 72hz, SS 1.1, full shadows"
+					text		"Quest 3: 72hz, SS 1.1, full shadows"
 					textscale   0.18
 				}
 			}
