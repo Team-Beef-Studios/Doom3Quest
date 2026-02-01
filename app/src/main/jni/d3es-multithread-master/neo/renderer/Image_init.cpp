@@ -360,11 +360,11 @@ static void R_RGBA8Image( idImage *image ) {
 // used for Hud and PDA surfaces in VR
 static void R_VRSurfaceImage( idImage* image )
 {
-	byte	*data = (byte*)malloc(1024 * 1024 * 4);
+	byte	*data = (byte*)malloc(2048 * 2048 * 4);
 
 	memset( data, 0, sizeof( data ) );
 
-	image->GenerateImage( (byte *)data, 1024, 1024,
+	image->GenerateImage( (byte *)data, 2048, 2048,
 						  TF_DEFAULT, false, TR_CLAMP, TD_HIGH_QUALITY );
 }
 
@@ -1783,6 +1783,7 @@ void idImageManager::Init() {
 
 	hudImage = ImageFromFunction( "_hudImage", R_VRSurfaceImage ); // R_RGBA8Image );
 	pdaImage = ImageFromFunction( "_pdaImage", R_VRSurfaceImage ); // R_RGBA8Image );
+	fxImage = ImageFromFunction( "_fxImage", R_VRSurfaceImage ); // R_RGBA8Image );
 
 
 	cmdSystem->AddCommand( "reloadImages", R_ReloadImages_f, CMD_FL_RENDERER, "reloads images" );

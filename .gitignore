@@ -31,5 +31,5 @@ drbeef-release-key.keystore
 *.ser
 .idea
 .gradle
-app/src/main/assets/*.pk4
+app/src/main/assets/pak*.pk4
 local.properties

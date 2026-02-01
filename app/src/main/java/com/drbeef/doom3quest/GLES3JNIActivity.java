@@ -226,17 +226,12 @@ import static android.system.Os.setenv;
 		File lm = new File(root, "d3le");
 		File tfp = new File(root, "tfphobos");
 
-		boolean exitAfterCopy = false;
-
-		//If this is first run on clean system, or user hasn't copied anything yet, just exit after we have copied
-		if (!new File(base, "pak000.pk4").exists())
-		{
-			exitAfterCopy = true;
-		}
-
 		//Create file structure
 		base.mkdirs();
 		copy_common_assets(base);
+		for (int i = 0; i <= 3; i++) {
+			copy_asset(base.getAbsolutePath(), "demo0" + i + ".pk4", false);
+		}
 		copy_asset(root.getAbsolutePath(), "commandline.txt", false);
 		copy_optional_assets(cdoom, "pak399cd.pk4");
 		copy_optional_assets(doom2, "pak399d2.pk4");
@@ -252,12 +247,6 @@ import static android.system.Os.setenv;
 			for (int i = 0; i < 10; i++) {
 				new File(lm, "pak00" + i + ".pk4").delete();
 			}
-		}
-
-		if (exitAfterCopy)
-		{
-			finish();
-			System.exit(0);
 		}
 
 		//Copy save games from old version to new version

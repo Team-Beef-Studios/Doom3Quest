@@ -95,6 +95,7 @@ void RB_RenderView(void) {
 	if ( !r_noLight.GetBool() )
 #endif
 	// main light renderer
+	if (!backEnd.viewDef->renderView.bloomFXPass) //Lubos
 	RB_GLSL_DrawInteractions();
 
 	// disable stencil shadow test
@@ -104,6 +105,7 @@ void RB_RenderView(void) {
 	const int processed = RB_GLSL_DrawShaderPasses(drawSurfs, numDrawSurfs);
 
 	// fog and blend lights
+	if (!backEnd.viewDef->renderView.bloomFXPass) //Lubos
 	RB_GLSL_FogAllLights();
 
 	// now draw any post-processing effects using _currentRender

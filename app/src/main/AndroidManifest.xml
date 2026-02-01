@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 		package="com.drbeef.doom3quest"
-		android:versionCode="43"
-		android:versionName="1.4.3"
+		android:versionCode="44"
+		android:versionName="1.4.4"
 		android:installLocation="auto">
 
 
@@ -24,7 +24,8 @@
 		android:extractNativeLibs="true">
 
 		<meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only"/>
-		<meta-data android:name="com.oculus.supportedDevices" android:value="quest|quest2|quest3|questpro"/>
+		<meta-data android:name="com.oculus.supportedDevices" android:value="quest2|quest3|questpro"/>
+		<meta-data android:name="com.oculus.ossplash" android:value="true"/>
 		<meta-data android:name="pvr.app.type" android:value="vr" />
 		<!-- The activity is the built-in NativeActivity framework class. -->
 		<!-- launchMode is set to singleTask because there should never be multiple copies of the app running. -->

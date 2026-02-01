@@ -430,10 +430,11 @@ public:
 	};
 
 private:
-	void				SingleView( idUserInterface *hud, const renderView_t *view );
-	void				DoubleVision( idUserInterface *hud, const renderView_t *view, int offset );
-	void				BerserkVision( idUserInterface *hud, const renderView_t *view );
-	void				InfluenceVision( idUserInterface *hud, const renderView_t *view );
+	void				SingleView( idUserInterface *hud, renderView_t *view );
+	void				DoubleVision( idUserInterface *hud, renderView_t *view, int offset );
+	void				BerserkVision( idUserInterface *hud, renderView_t *view );
+	void				InfluenceVision( idUserInterface *hud, renderView_t *view );
+	void				BloomVision(idUserInterface *hud, renderView_t *view); // Lubos
 	void				ScreenFade();
 
 	screenBlob_t *		GetScreenBlob();
@@ -442,6 +443,7 @@ private:
 public:
 	int					dvFinishTime;		// double vision will be stopped at this time
 	const idMaterial *	dvMaterial;			// material to take the double vision screen shot
+	const idMaterial *	fxMaterial;			// Lubos
 
 	int					kickFinishTime;		// view kick will be stopped at this time
 	idAngles			kickAngles;

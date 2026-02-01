@@ -479,7 +479,7 @@ bool	R_GenerateSurfaceSubview( drawSurf_t *drawSurf ) {
 	const idMaterial		*shader;
 
 	// for testing the performance hit
-	if ( r_skipSubviews.GetBool() ) {
+	if ( r_skipSubviews.GetBool() || tr.viewDef->renderView.bloomFXPass ) {
 		return false;
 	}
 
@@ -578,7 +578,7 @@ bool R_GenerateSubViews( void ) {
 	const idMaterial		*shader;
 
 	// for testing the performance hit
-	if ( r_skipSubviews.GetBool() ) {
+	if ( r_skipSubviews.GetBool() || tr.viewDef->renderView.bloomFXPass ) {
 		return false;
 	}
 

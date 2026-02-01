@@ -170,8 +170,8 @@ void HandleInput_Default(int controlscheme, int switchsticks)
             static bool itemSwitched = false;
             bool weaponWheel = Android_GetCVarInteger("vr_weaponToggle") == 1;
             if (between(-0.2f, pPrimaryJoystick.x, 0.2f) &&
-                (between(0.5f, pPrimaryJoystick.y, 1.0f) ||
-                 between(-1.0f, pPrimaryJoystick.y, -0.5f)))
+                (between(0.8f, pPrimaryJoystick.y, 1.0f) ||
+                 between(-1.0f, pPrimaryJoystick.y, -0.8f)))
             {
                 if (!itemSwitched) {
                     if (weaponWheel)
