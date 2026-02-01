@@ -1,4 +1,4 @@
-![Doom3Quest Banner](https://github.com/DrBeef/Doom3Quest/blob/master/assets/firelogo.jpg)
+![Doom3Quest Banner](https://github.com/DrBeef/Doom3Quest/blob/master/app/src/main/assets/firelogo.jpg)
 ===
 
 Doom 3 Quest is based on the excellent port from Emile Belanger (https://github.com/emileb), with multithreaded front end and backend renderering, with an updated renderer to OpenGL ES 3.0 to take advantage of MultiView to dramatically improve VR rendering performance, and many VR specific enhancements (see below).
