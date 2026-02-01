@@ -1,0 +1,117 @@
+windowDef Desktop 
+{
+	forceaspectwidth 1120
+	rect	0 ,0 ,1120 ,480 
+	backcolor	0 ,0 ,0 ,0 
+	visible	1
+	menugui 1
+	nocursor	1
+	float air	1
+	float objdone	0
+	float objdone2	0		
+	float talk 	0
+	float item 0
+
+	float player_clip_size 1
+	 
+	#include "guis/hud/helmet.pd"
+	#include "guis/hud/hardware.pd"       
+	#include "guis/hud/vitals.pd"
+	#include "guis/hud/objectives.pd" 
+	#include "guis/hud/air.pd"	
+	#include "guis/hud/radio.pd"
+	#include "guis/hud/talk.pd"	
+	#include "guis/hud/pickups.pd" 
+	#include "guis/hud/tooltip.pd"     	
+	#include "guis/hud/item.pd"	
+	
+	onNamedEvent Consequences { 
+		
+		set "ThisActionWillHaveConsequences::visible" "1";
+		resetTime "ThisActionWillHaveConsequences" "0";
+	} 
+	
+	windowDef ThisActionWillHaveConsequences
+	{
+		rect 0,240,640,240
+		visible 0
+		forecolor 1, 1, 1, 1
+		font "fonts/shadows"
+		text "This action will have"
+		textscale .24
+		textalign 1		
+
+		windowDef Consequences
+		{
+			rect 0, 20, 640, 80
+			visible 1
+			forecolor 1,1,1,1
+			text "consequences..."
+			textscale .24
+			font "fonts/shadows"
+			textalign 1
+		}
+		 
+		onTime 0
+		{
+			transition "ThisActionWillHaveConsequences::forecolor" "1 1 1 1" "1 1 1 0" "5500";
+			transition "Consequences::forecolor" "1 1 1 1" "1 1 1 0" "5500";
+		}
+
+		onTime 300
+		{
+			set "Consequences::text" "consequences";
+			set "ThisActionWillHaveConsequences::rect" "2 245 640 240";
+		}
+
+		onTime 600
+		{
+			set "Consequences::text" "consequences.";
+			set "ThisActionWillHaveConsequences::rect" "7 242 640 240";
+		}
+
+		onTime 900
+		{
+			set "Consequences::text" "consequences..";
+			set "ThisActionWillHaveConsequences::rect" "0 240 640 240";
+		}
+
+		onTime 1200
+		{
+			set "Consequences::text" "consequences...";
+			set "ThisActionWillHaveConsequences::rect" "7 247 640 240";
+		}
+
+		onTime 1500
+		{
+			resetTime "ThisActionWillHaveConsequences" "500";
+		}
+	}
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Message
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	onNamedEvent Message {
+		transition "message1a::forecolor" "0 0 0 1" "0 0 0 0" "5000" "1" "0" ;
+		transition "message1::forecolor" "0.3 0.6 0.9 1" "0.3 0.6 0.9 0" "5000" "1" "0" ;
+	}
+	//////**********************************************************************
+	//  Message Broadcast
+	//////**********************************************************************
+
+	windowDef message1a {
+		rect 21, 261, 638, 10
+		forecolor 0, 0, 0, 0
+		text "gui::message"
+		textscale 0.25
+		font "fonts/an"
+	}
+	windowDef message1 {
+		rect 20, 260, 638, 10
+		forecolor	0.3, 0.6, .9, 0
+		text "gui::message"
+		textscale 0.25
+		font "fonts/an"
+	}
+
+}

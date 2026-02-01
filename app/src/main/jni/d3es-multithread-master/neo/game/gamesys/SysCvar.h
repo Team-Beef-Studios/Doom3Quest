@@ -35,6 +35,7 @@ extern idCVar	developer;
 
 extern idCVar	g_cinematic;
 extern idCVar	g_cinematicMaxSkipTime;
+extern idCVar	g_showSubtitles;
 
 extern idCVar	r_aspectRatio;
 

@@ -2903,7 +2903,8 @@ void idWeapon::PresentWeapon( bool showViewModel, int hand ) {
     {
         // deal with the third-person visible world model
         // don't show shadows of the world model in first person
-        if ( g_showPlayerShadow.GetBool() || pm_thirdPerson.GetBool() || game->isVR ) // Koz fixme only in vr
+        bool showShadow = !fileSystem->RunningPhobos() || owner->GetInfluenceLevel() <= INFLUENCE_LEVEL3;
+        if ( ( g_showPlayerShadow.GetBool() && showShadow ) || pm_thirdPerson.GetBool() || game->isVR ) // Koz fixme only in vr
         {
             worldModel.GetEntity()->GetRenderEntity()->suppressShadowInViewID = 0;
         }
@@ -3242,7 +3243,7 @@ idWeapon::GetAmmoNameForNum
 ================
 */
 const char *idWeapon::GetAmmoNameForNum( ammo_t ammonum ) {
-	int i;
+	int i, j;
 	int num;
 	const idDict *ammoDict;
 	const idKeyValue *kv;
@@ -3256,8 +3257,8 @@ const char *idWeapon::GetAmmoNameForNum( ammo_t ammonum ) {
 	sprintf( text, "%d", ammonum );
 
 	num = ammoDict->GetNumKeyVals();
-	for( i = 0; i < num; i++ ) {
-		kv = ammoDict->GetKeyVal( i );
+	for (j = 0; j < num; j++) {
+		kv = ammoDict->GetKeyVal( j );
 		if ( kv->GetValue() == text ) {
 			return kv->GetKey();
 		}
@@ -4319,7 +4320,14 @@ void idWeapon::Event_LaunchProjectiles( int num_projectiles, float spread, float
 			else if( i == 0 )
 			{
 				muzzle_pos = muzzleOrigin + muzzleAxis[ 0 ] * 2.0f;
-				if( ( ownerBounds - projBounds ).RayIntersection( muzzle_pos, muzzleAxis[0], distance ) )
+				// DG: sometimes the assertion in idBounds::operator-(const idBounds&) triggers
+				//     (would get bounding box with negative volume)
+				//     => check that before doing ownerBounds - projBounds (equivalent
+				//     to the check in the assertion)
+				idVec3 obDiff = ownerBounds[1] - ownerBounds[0];
+				idVec3 pbDiff = projBounds[1] - projBounds[0];
+				bool boundsSubLegal = obDiff.x > pbDiff.x && obDiff.y > pbDiff.y && obDiff.z > pbDiff.z;
+				if (boundsSubLegal && (ownerBounds - projBounds).RayIntersection(muzzle_pos, playerViewAxis[0], distance))
 				{
 					start = muzzle_pos + distance * muzzleAxis[0];
 				}

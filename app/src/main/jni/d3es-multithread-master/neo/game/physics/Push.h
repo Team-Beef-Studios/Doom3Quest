@@ -80,7 +80,7 @@ private:
 	struct pushed_s {
 		idEntity *	ent;					// pushed entity
 		idAngles	deltaViewAngles;		// actor delta view angles
-	}				pushed[MAX_GENTITIES];	// pushed entities
+	}				pushed[MAX_GENTITIES_NEW];	// pushed entities
 	int				numPushed;				// number of pushed entities
 
 	struct pushedGroup_s {
@@ -88,7 +88,7 @@ private:
 		float		fraction;
 		bool		groundContact;
 		bool		test;
-	}				pushedGroup[MAX_GENTITIES];
+	}				pushedGroup[MAX_GENTITIES_NEW];
 	int				pushedGroupSize;
 
 private:

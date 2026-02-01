@@ -569,10 +569,12 @@ public:
 
 ID_INLINE SetTimeState::SetTimeState() {
     activated = false;
+    previousFast = false;
 }
 
 ID_INLINE SetTimeState::SetTimeState(int timeGroup) {
     activated = false;
+    previousFast = false;
     PushState(timeGroup);
 }
 

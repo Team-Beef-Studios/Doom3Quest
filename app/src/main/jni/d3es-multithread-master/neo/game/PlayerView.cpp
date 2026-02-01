@@ -585,6 +585,19 @@ void idPlayerView::SingleView( idUserInterface *hud, const renderView_t *view ) 
 		}
 	}
 
+	if (fileSystem->RunningPhobos()) {
+		if (player->objectiveSystemOpen) {
+			player->objectiveSystem->Redraw(gameLocal.fast.time);
+		}
+		if (player->itemSystemOpen) {
+			player->itemSystem->Redraw(gameLocal.fast.time);
+		}
+		if (player->textMessageSystemOpen) {
+			player->textMessageSystem->Redraw(gameLocal.fast.time);
+		}
+	}
+
+
 	// test a single material drawn over everything
 	if ( g_testPostProcess.GetString()[0] ) {
 		const idMaterial *mtr = declManager->FindMaterial( g_testPostProcess.GetString(), false );
@@ -802,7 +815,13 @@ void idPlayerView::RenderPlayerView( idUserInterface *hud ) {
 			view->forceMono = false;
             SingleView( hud, view );
         }
+        if (fileSystem->RunningPhobos() && player->cameraGuiSystem && player->cameraGuiSystemOpen) {
+            player->cameraGuiSystem->Redraw(gameLocal.fast.time);
+        }
         ScreenFade();
+        if (fileSystem->RunningPhobos() && g_showSubtitles.GetBool() && player->subtitleSystemOpen) {
+            player->subtitleSystem->Redraw(gameLocal.fast.time);
+        }
     }
 
     if ( net_clientLagOMeter.GetBool() && lagoMaterial && gameLocal.isClient ) {

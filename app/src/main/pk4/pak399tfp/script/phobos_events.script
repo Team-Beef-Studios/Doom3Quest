@@ -1,0 +1,36 @@
+
+// idAI_ArchVile
+// scriptEvent	entity 	FindMonsterToResurrect();
+
+// Entity
+// scriptEvent entity	GetSelfEntity();
+// scriptEvent void	updateCameraTargetFix();
+
+// AI Events
+// scriptEvent void	Resurrect();
+// scriptEvent void	launchProjectile(string projectilename);
+
+// System Events (call with sys.)
+// scriptEvent void	spawnParticle( string name, vector origin );
+scriptEvent void	quickSave(string name);
+scriptEvent void	disableItemGroup(string name);
+scriptEvent void	enableItemGroup(string name);
+scriptEvent void	enableItemGroups();
+scriptEvent void	showTextMessage(string value, float type);
+scriptEvent void	showTextTyping();
+scriptEvent void	hideTextTyping();
+scriptEvent void	showSubtitle(string name, string text);
+scriptEvent void	hideSubtitles();
+scriptEvent void	fadeFromTo(vector colorFrom, float alphaFrom, vector colorTo, float alphaTo, float time);
+//scriptEvent void	triggerInspect();
+scriptEvent float	pow(float number, float power);
+
+// Life is Strange
+scriptEvent void	showConsequences();
+
+// Elevators
+// scriptEvent void	gotoFloor(float number);
+
+// Player
+scriptEvent void	setViewAngles(vector angles);
+scriptEvent float	getEyeHeight();

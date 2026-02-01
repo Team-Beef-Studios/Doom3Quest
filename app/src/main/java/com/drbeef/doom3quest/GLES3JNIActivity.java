@@ -224,6 +224,7 @@ import static android.system.Os.setenv;
 		File doom2 = new File(root, "Doom_II_for_Doom_3_unofficial");
 		File roe = new File(root, "d3xp");
 		File lm = new File(root, "d3le");
+		File tfp = new File(root, "tfphobos");
 
 		boolean exitAfterCopy = false;
 
@@ -241,6 +242,7 @@ import static android.system.Os.setenv;
 		copy_optional_assets(doom2, "pak399d2.pk4");
 		copy_optional_assets(roe, "pak399roe.pk4");
 		copy_optional_assets(lm, "pak399lm.pk4");
+		copy_optional_assets(tfp, "pak399tfp.pk4");
 
 		//delete incompatible files
 		if (cdoom.exists()) {

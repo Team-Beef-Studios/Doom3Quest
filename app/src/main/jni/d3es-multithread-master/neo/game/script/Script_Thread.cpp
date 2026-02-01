@@ -118,6 +118,17 @@ const idEventDef EV_Thread_DebugCircle( "debugCircle", "vvvfdf" );
 const idEventDef EV_Thread_DebugBounds( "debugBounds", "vvvf" );
 const idEventDef EV_Thread_DrawText( "drawText", "svfvdf" );
 const idEventDef EV_Thread_InfluenceActive( "influenceActive", NULL, 'd' );
+const idEventDef EV_Thread_QuickSave("quickSave", "s");
+const idEventDef EV_Thread_DisableItemGroup("disableItemGroup", "s");
+const idEventDef EV_Thread_EnableItemGroup("enableItemGroup", "s");
+const idEventDef EV_Thread_EnableItemGroups("enableItemGroups", NULL);
+const idEventDef EV_Thread_ShowTextMessage("showTextMessage", "sd");
+const idEventDef EV_Thread_ShowTextTyping("showTextTyping", NULL);
+const idEventDef EV_Thread_HideTextTyping("hideTextTyping", NULL);
+const idEventDef EV_Thread_ShowSubtitle("showSubtitle", "ss");
+const idEventDef EV_Thread_HideSubtitles("hideSubtitles", NULL);
+const idEventDef EV_Thread_FadeFromTo("fadeFromTo", "vfvff");
+const idEventDef EV_Thread_Pow("pow", "ff", 'f');
 
 CLASS_DECLARATION( idClass, idThread )
 	EVENT( EV_Thread_Execute,				idThread::Event_Execute )
@@ -203,6 +214,17 @@ CLASS_DECLARATION( idClass, idThread )
 	EVENT( EV_Thread_DebugBounds,			idThread::Event_DebugBounds )
 	EVENT( EV_Thread_DrawText,				idThread::Event_DrawText )
 	EVENT( EV_Thread_InfluenceActive,		idThread::Event_InfluenceActive )
+	EVENT( EV_Thread_QuickSave,				idThread::Event_QuickSave )
+	EVENT( EV_Thread_DisableItemGroup,		idThread::Event_DisableItemGroup )
+	EVENT( EV_Thread_EnableItemGroup,		idThread::Event_EnableItemGroup )
+	EVENT( EV_Thread_EnableItemGroups,		idThread::Event_EnableItemGroups )
+	EVENT( EV_Thread_ShowTextMessage,		idThread::Event_ShowTextMessage )
+	EVENT( EV_Thread_ShowTextTyping,		idThread::Event_ShowTextTyping )
+	EVENT( EV_Thread_HideTextTyping,		idThread::Event_HideTextTyping )
+	EVENT( EV_Thread_ShowSubtitle,			idThread::Event_ShowSubtitle )
+	EVENT( EV_Thread_HideSubtitles,			idThread::Event_HideSubtitles )
+	EVENT( EV_Thread_FadeFromTo,			idThread::Event_FadeFromTo )
+	EVENT( EV_Thread_Pow,					idThread::Event_Pow )
 END_CLASS
 
 idThread			*idThread::currentThread = NULL;
@@ -805,7 +827,7 @@ void idThread::Error( const char *fmt, ... ) const {
 	vsprintf( text, fmt, argptr );
 	va_end( argptr );
 
-	interpreter.Error( text );
+	interpreter.Error("%s", text);
 }
 
 /*
@@ -821,7 +843,7 @@ void idThread::Warning( const char *fmt, ... ) const {
 	vsprintf( text, fmt, argptr );
 	va_end( argptr );
 
-	interpreter.Warning( text );
+	interpreter.Warning("%s", text);
 }
 
 /*
@@ -1903,4 +1925,235 @@ void idThread::Event_InfluenceActive( void ) {
 	} else {
 		idThread::ReturnInt( false );
 	}
+}
+
+/*
+================
+idThread::Event_QuickSave
+================
+*/
+void idThread::Event_QuickSave(const char *name) {
+    cmdSystem->BufferCommandText(CMD_EXEC_APPEND, va("saveGame \"%s\"", name));
+}
+
+/*
+================
+idThread::Event_DisableItemGroup
+================
+*/
+void idThread::Event_DisableItemGroup(const char *name) {
+    idEntity *ent;
+
+    ent = gameLocal.spawnedEntities.Next();
+
+    for (; ent != NULL; ent = ent->spawnNode.Next()) {
+        assert(ent);
+        if (idStr::Icmp(ent->spawnArgs.GetString("item_group"), name) == 0) {
+            ent->spawnArgs.SetInt("clickable", 0);
+        }
+    }
+}
+
+/*
+================
+idThread::Event_EnableItemGroup
+================
+*/
+void idThread::Event_EnableItemGroup(const char *name) {
+    idEntity *ent;
+
+    ent = gameLocal.spawnedEntities.Next();
+
+    for (; ent != NULL; ent = ent->spawnNode.Next()) {
+        assert(ent);
+        if (idStr::Icmp(ent->spawnArgs.GetString("item_group"), name) == 0) {
+            ent->spawnArgs.SetInt("clickable", 1);
+        }
+    }
+}
+
+/*
+================
+idThread::Event_EnableItemGroups
+================
+*/
+void idThread::Event_EnableItemGroups(void) {
+    idEntity *ent;
+
+    ent = gameLocal.spawnedEntities.Next();
+
+    for (; ent != NULL; ent = ent->spawnNode.Next()) {
+        assert(ent);
+        if (ent->spawnArgs.FindKey("item_group")) {
+            ent->spawnArgs.SetInt("clickable", 1);
+        }
+    }
+}
+
+/*
+================
+idThread::Event_ShowTextMessage
+================
+*/
+void idThread::Event_ShowTextMessage(const char *string, int type) {
+    idPlayer *player;
+
+    player = gameLocal.GetLocalPlayer();
+    if (player && player->textMessageSystem) {
+        gameLocal.SetUIAspectRatio(player->textMessageSystem);
+
+        for (int i = 5; i >= 1; i--) {
+            bool post = false;
+
+            if ((player->textMessageSystem->State().GetInt(
+                    va("text_message_%i_visible", i - 1)) == 1 &&
+                 player->textMessageSystem->State().GetInt(
+                         va("text_message_%i_visible", i)) == 0) ||
+                i == 1) {
+                post = true;
+            }
+
+            if (post) {
+                idStr text = string;
+                int lines = text.Length() / 25;
+                int linePos =
+                        player->textMessageSystem->State().GetInt("text_message_linepos");
+
+                if (lines < 1) {
+                    lines = 1;
+                }
+
+                player->textMessageSystem->SetStateInt("text_message_linepos",
+                                                       linePos + lines + 1);
+                player->textMessageSystem->SetStateInt(
+                        va("text_message_%i_timestamp", i), gameLocal.time);
+                player->textMessageSystem->SetStateInt(va("text_message_%i_cleared", i),
+                                                       0);
+                player->textMessageSystem->SetStateInt(va("text_message_%i_type", i),
+                                                       type);
+                player->textMessageSystem->SetStateInt(va("text_message_%i_linepos", i),
+                                                       linePos);
+                player->textMessageSystem->SetStateInt(va("text_message_%i_lines", i),
+                                                       lines);
+                player->textMessageSystem->SetStateInt(va("text_message_%i_visible", i),
+                                                       1);
+                player->textMessageSystem->SetStateString(va("text_message_%i_text", i),
+                                                          string);
+                player->textMessageSystem->HandleNamedEvent(
+                        va("Text_Message_%i_Anim_in", i));
+                break;
+            }
+        }
+
+        if (!player->textMessageSystemOpen) {
+            player->textMessageSystem->Activate(true, gameLocal.time);
+            player->textMessageSystemOpen = true;
+        }
+    }
+}
+
+/*
+================
+idThread::Event_ShowTextTyping
+================
+*/
+void idThread::Event_ShowTextTyping(void) {
+    idPlayer *player;
+
+    player = gameLocal.GetLocalPlayer();
+    if (player && player->textMessageSystem) {
+        gameLocal.SetUIAspectRatio(player->textMessageSystem);
+
+        int linePos =
+                player->textMessageSystem->State().GetInt("text_message_linepos");
+
+        player->textMessageSystem->SetStateInt("text_message_typing_visible", 1);
+        player->textMessageSystem->SetStateInt("text_message_typing_linepos",
+                                               linePos);
+
+        if (!player->textMessageSystemOpen) {
+            player->textMessageSystem->Activate(true, gameLocal.time);
+            player->textMessageSystemOpen = true;
+        }
+    }
+}
+
+/*
+================
+idThread::Event_HideTextTyping
+================
+*/
+void idThread::Event_HideTextTyping(void) {
+    idPlayer *player;
+
+    player = gameLocal.GetLocalPlayer();
+    if (player && player->textMessageSystem) {
+        player->textMessageSystem->SetStateInt("text_message_typing_visible", 0);
+    }
+}
+
+/*
+================
+idThread::Event_ShowSubtitle
+================
+*/
+void idThread::Event_ShowSubtitle(const char *name, const char *text) {
+    idPlayer *player;
+
+    player = gameLocal.GetLocalPlayer();
+    if (player && player->subtitleSystem) {
+        gameLocal.SetUIAspectRatio(player->subtitleSystem);
+
+        player->subtitleSystem->SetStateInt("subtitle1_visible", 1);
+
+        player->subtitleSystem->SetStateString("subtitle1_name", name);
+        player->subtitleSystem->SetStateString("subtitle1_text", text);
+
+        player->subtitleSystem->Activate(true, gameLocal.time);
+        player->subtitleSystemOpen = true;
+    }
+}
+
+/*
+================
+idThread::Event_HideSubtitles
+================
+*/
+void idThread::Event_HideSubtitles(void) {
+    idPlayer *player;
+
+    player = gameLocal.GetLocalPlayer();
+    if (player && player->subtitleSystem && player->subtitleSystemOpen) {
+        player->subtitleSystem->Activate(false, gameLocal.time);
+        player->subtitleSystemOpen = false;
+    }
+}
+
+/*
+================
+idThread::Event_FadeFromTo
+================
+*/
+void idThread::Event_FadeFromTo(idVec3 &colorFrom, float alphaFrom,
+                                idVec3 &colorTo, float alphaTo, float time) {
+    idVec4 fadeColorFrom, fadeColorTo;
+    idPlayer *player;
+
+    player = gameLocal.GetLocalPlayer();
+    if (player) {
+        fadeColorFrom.Set(colorFrom[0], colorFrom[1], colorFrom[2], alphaFrom);
+        player->playerView.Fade(fadeColorFrom, SEC2MS(time));
+
+        fadeColorTo.Set(colorTo[0], colorTo[1], colorTo[2], alphaTo);
+        player->playerView.Fade(fadeColorTo, SEC2MS(time));
+    }
+}
+
+/*
+================
+idThread::Event_Pow
+================
+*/
+void idThread::Event_Pow(float number, float power) {
+    idThread::ReturnFloat(idMath::Pow(number, power));
 }

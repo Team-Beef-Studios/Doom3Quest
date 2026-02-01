@@ -767,7 +767,11 @@ idSaveGame::WriteBuildNumber
 ======================
 */
 void idSaveGame::WriteBuildNumber( const int value ) {
-	file->WriteInt( BUILD_NUMBER );
+	if (fileSystem->RunningPhobos()) {
+		file->WriteInt(DHEWM3_BUILD_NUMBER);
+	} else {
+		file->WriteInt( BUILD_NUMBER );
+	}
 }
 
 /***********************************************************************
@@ -783,6 +787,7 @@ idRestoreGame::RestoreGame
 */
 idRestoreGame::idRestoreGame( idFile *savefile ) {
 	file = savefile;
+	internalSavegameVersion = 0;
 }
 
 /*

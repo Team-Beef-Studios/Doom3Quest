@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __GAMEBASE_H__
 #define	__GAMEBASE_H__
 
+#include "framework/FileSystem.h"
+
 // default scripts
 #define SCRIPT_DEFAULTDEFS		"script/doom_defs.script"
 #define SCRIPT_DEFAULT			"script/doom_main.script"
@@ -50,7 +52,10 @@ If you have questions concerning this license or the applicable additional terms
 #define	GAME_VERSION			"baseDOOM-1"
 
 #define	MAX_CLIENTS				32
-#define	GENTITYNUM_BITS			12
+#define	GENTITYNUM_BITS_NEW		13
+#define	GENTITYNUM_BITS_OLD		12
+#define	GENTITYNUM_BITS			(fileSystem->RunningPhobos() ? GENTITYNUM_BITS_NEW : GENTITYNUM_BITS_OLD)
+#define	MAX_GENTITIES_NEW		(1<<GENTITYNUM_BITS_NEW)
 #define	MAX_GENTITIES			(1<<GENTITYNUM_BITS)
 #define	ENTITYNUM_NONE			(MAX_GENTITIES-1)
 #define	ENTITYNUM_WORLD			(MAX_GENTITIES-2)
@@ -58,6 +63,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #define MAX_GAME_MESSAGE_SIZE	8192
 #define MAX_ENTITY_STATE_SIZE	512
+#define ENTITY_PVS_SIZE_NEW		((MAX_GENTITIES_NEW+31)>>5)
 #define ENTITY_PVS_SIZE			((MAX_GENTITIES+31)>>5)
 
 // content masks
