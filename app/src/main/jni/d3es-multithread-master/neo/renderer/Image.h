@@ -408,6 +408,7 @@ public:
 
 	idImage*			hudImage;
 	idImage*			pdaImage;
+	idImage*			fxImage;
 
 	//--------------------------------------------------------
 

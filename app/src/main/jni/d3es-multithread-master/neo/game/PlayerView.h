@@ -442,6 +442,7 @@ private:
 public:
 	int					dvFinishTime;		// double vision will be stopped at this time
 	const idMaterial *	dvMaterial;			// material to take the double vision screen shot
+	const idMaterial *	fxMaterial;			// Lubos
 
 	int					kickFinishTime;		// view kick will be stopped at this time
 	idAngles			kickAngles;
