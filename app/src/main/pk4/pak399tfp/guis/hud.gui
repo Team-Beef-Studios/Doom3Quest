@@ -114,4 +114,5 @@ windowDef Desktop
 		font "fonts/an"
 	}
 
+	#include "guis/vr_weapon_wheel.gui"
 }

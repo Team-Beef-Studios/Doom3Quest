@@ -148,4 +148,5 @@ windowDef Desktop {
 
 	#include "guis/mainmenu/ExitGame.pd"
 	#include "guis/mainmenu/EndGame.pd"
+	#include "guis/vr_options.gui"
 }

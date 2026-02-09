@@ -2326,9 +2326,6 @@ int RB_GLSL_DrawShaderPasses(drawSurf_t** drawSurfs, int numDrawSurfs) {
 		//Lubos BEGIN
 		if (backEnd.viewDef->renderView.bloomFXPass) {
 			idStr texture(drawSurfs[i]->material->ImageName());
-            if (texture.CmpPrefix("textures/particles/") == 0) {
-                continue;
-            }
             if (texture.CmpPrefix("_hudImage") == 0) {
                 continue;
             }
