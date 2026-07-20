@@ -54,6 +54,12 @@ If you have questions concerning this license or the applicable additional terms
 
 bool oldSaveVersion = false; //Lubos
 
+// Doom3Quest: marker written right after the build number in idGameLocal::SaveGame so the
+// loader can positively identify a modern save body and parse it deterministically, instead
+// of guessing the format from field values (which was unreliable and corrupted saves).
+static const int D3QUEST_SAVE_MAGIC        = 0x44335153; // 'D3QS'
+static const int D3QUEST_SAVE_BODY_VERSION = 1;
+
 const int NUM_RENDER_PORTAL_BITS	= idMath::BitsForInteger( PS_BLOCK_ALL );
 
 const float	DEFAULT_GRAVITY			= 1066.0f;
@@ -539,6 +545,11 @@ void idGameLocal::SaveGame( idFile *f ) {
 	} else {
 		savegame.WriteBuildNumber( BUILD_NUMBER );
 	}
+
+	// Doom3Quest: tag the save body with a format marker + version so it can be loaded
+	// deterministically (see idGameLocal::InitFromSaveGame).
+	savegame.WriteInt( D3QUEST_SAVE_MAGIC );
+	savegame.WriteInt( D3QUEST_SAVE_BODY_VERSION );
 
 	// go through all entities and threads and add them to the object list
 	for( i = 0; i < MAX_GENTITIES; i++ ) {
@@ -1801,6 +1812,24 @@ bool idGameLocal::InitFromSaveGame( const char *mapName, idRenderWorld *renderWo
 	}
 	// DG end
 
+	// Doom3Quest: detect a modern, explicitly-versioned save body. Legacy saves have no
+	// marker here, so peek one int and rewind if it isn't ours, leaving the stream intact
+	// for CreateObjects(). A modern save lets us parse the format deterministically below.
+	bool modernSave = false;
+	int saveBodyVersion = 0;
+	{
+		int markerPos = saveGameFile->Tell();
+		int marker = 0;
+		savegame.ReadInt( marker );
+		if ( marker == D3QUEST_SAVE_MAGIC ) {
+			savegame.ReadInt( saveBodyVersion );
+			modernSave = true;
+			oldSaveVersion = false; // known-good modern body: read new fields everywhere
+			common->DPrintf( "Doom3Quest: loading modern save (body v%d)\n", saveBodyVersion );
+		} else {
+			saveGameFile->Seek( markerPos, FS_SEEK_SET );
+		}
+	}
 
     // Create the list of all objects in the game
 	savegame.CreateObjects();
@@ -1919,28 +1948,42 @@ bool idGameLocal::InitFromSaveGame( const char *mapName, idRenderWorld *renderWo
 
 	savegame.ReadInt( framenum );
 	savegame.ReadInt( previousTime );
-	savegame.ReadInt( time );
 
-	//Lubos BEGIN
-	//This code helps to determine if we are using old or new version of the save game format.
-	//On this line it is the first read value from file which is different between the versions.
-	//In levels with vacuum we need to check the second int to be sure we detect it correctly.
-	//If one of the default values matches the read value then we use old format.
-	int msec = 1000 / 60;
-	int value1 = 0; int value2 = 0;
-	savegame.ReadInt( value1 );
-	savegame.ReadInt( value2 );
-	oldSaveVersion = ( value1 == vacuumAreaNum ) || ( value2 == entityDefBits );
-	if ( !oldSaveVersion ) {
-		msec = value1;
-		vacuumAreaNum = value2;
+	if ( modernSave ) {
+		// Doom3Quest modern save: the header fields are written in a fixed, known order
+		// (see idGameLocal::SaveGame), so read them straight back. This also fixes the
+		// legacy path's bug of reading msec into the game 'time' field.
+		int msec = 1000 / 60;
+		savegame.ReadInt( msec );
+		savegame.ReadInt( time );
+		savegame.ReadInt( vacuumAreaNum );
 		savegame.ReadInt( entityDefBits );
+		oldSaveVersion = false;
+		SetMSec( msec );
 	} else {
-		vacuumAreaNum = value1;
-		entityDefBits = value2;
+		savegame.ReadInt( time );
+
+		//Lubos BEGIN
+		//This code helps to determine if we are using old or new version of the save game format.
+		//On this line it is the first read value from file which is different between the versions.
+		//In levels with vacuum we need to check the second int to be sure we detect it correctly.
+		//If one of the default values matches the read value then we use old format.
+		int msec = 1000 / 60;
+		int value1 = 0; int value2 = 0;
+		savegame.ReadInt( value1 );
+		savegame.ReadInt( value2 );
+		oldSaveVersion = ( value1 == vacuumAreaNum ) || ( value2 == entityDefBits );
+		if ( !oldSaveVersion ) {
+			msec = value1;
+			vacuumAreaNum = value2;
+			savegame.ReadInt( entityDefBits );
+		} else {
+			vacuumAreaNum = value1;
+			entityDefBits = value2;
+		}
+		SetMSec(msec);
+		//Lubos END
 	}
-	SetMSec(msec);
-	//Lubos END
 
 	savegame.ReadBool( isServer );
 	savegame.ReadBool( isClient );
