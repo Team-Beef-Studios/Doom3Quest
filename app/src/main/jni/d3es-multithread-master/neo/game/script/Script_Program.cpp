@@ -2016,6 +2016,13 @@ void idProgram::Save( idSaveGame *savefile ) const {
 idProgram::Restore
 ================
 */
+// Doom3Quest: the script checksum hashes each statement's source line number and pk4 file
+// index, so it changes whenever a script is edited cosmetically or the loaded pk4 set differs
+// (retail vs demo, added/removed paks, an updated pak399.pk4) - even when the script logic is
+// identical. That made otherwise-valid savegames fail to load and restart at the level intro.
+// Default to loading anyway; set to 0 to restore strict checksum enforcement.
+idCVar g_ignoreSaveScriptChecksum( "g_ignoreSaveScriptChecksum", "1", CVAR_GAME | CVAR_BOOL | CVAR_ARCHIVE, "Load savegames even when the script checksum doesn't match the currently loaded scripts." );
+
 bool idProgram::Restore( idRestoreGame *savefile ) {
 	int i, num, index;
 	bool result = true;
@@ -2045,8 +2052,12 @@ bool idProgram::Restore( idRestoreGame *savefile ) {
 	checksum = CalculateChecksum(isOldSavegame);
 
 	if ( saved_checksum != checksum ) {
-		gameLocal.Warning("WARNING: Real Script checksum didn't match the one from the savegame!");
-		result = false;
+		if ( g_ignoreSaveScriptChecksum.GetBool() ) {
+			gameLocal.Warning( "Script checksum didn't match the savegame's; loading anyway (g_ignoreSaveScriptChecksum 1)." );
+		} else {
+			gameLocal.Warning( "WARNING: Real Script checksum didn't match the one from the savegame!" );
+			result = false;
+		}
 	}
 
 	return result;
