@@ -3020,6 +3020,8 @@ void idCommonLocal::Shutdown( void ) {
 	SDL_Quit();
 }
 
+extern "C" int Doom3Quest_GetDeviceVersion();
+
 /*
 =================
 idCommonLocal::InitGame
@@ -3066,7 +3068,7 @@ void idCommonLocal::InitGame( void ) {
 	cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "exec default.cfg\n" );
 
 	//Execute the Quest version specific config before executing the normal config
-	char *s = va("exec quest%i_default.cfg\n", 2);
+	char *s = va("exec quest%i_default.cfg\n", Doom3Quest_GetDeviceVersion());
 	cmdSystem->BufferCommandText( CMD_EXEC_APPEND, s );
 
 	// skip the config file if "safe" is on the command line

@@ -1,5 +1,6 @@
 #include "VrBase.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,9 +9,50 @@
 #include <unistd.h>
 #endif
 
+#define VR_DEVICE_VERSION_UNKNOWN	2
+#define VR_DEVICE_VERSION_NEWEST	3
+
 static bool vr_platform[VR_PLATFORM_MAX];
 static engine_t vr_engine;
+static int vr_device_version = VR_DEVICE_VERSION_UNKNOWN;
+static char vr_system_name[XR_MAX_SYSTEM_NAME_SIZE] = "";
 int vr_initialized = 0;
+
+/*
+Maps an OpenXR system name onto a Quest generation, which selects questN_default.cfg.
+Meta reports names such as "Oculus Quest2" and "Meta Quest 3". Quest Pro carries the same
+SoC as Quest 2, so it takes the Quest 2 profile. Anything not recognised, Pico included,
+takes the Quest 2 profile because that is the safe middle setting.
+*/
+static int VR_ParseDeviceVersion(const char* systemName) {
+	char name[XR_MAX_SYSTEM_NAME_SIZE];
+	size_t i;
+
+	for (i = 0; i < sizeof(name) - 1 && systemName[i] != '\0'; i++) {
+		name[i] = (char)tolower((unsigned char)systemName[i]);
+	}
+	name[i] = '\0';
+
+	const char* model = strstr(name, "quest");
+	if (model == NULL) {
+		return VR_DEVICE_VERSION_UNKNOWN;
+	}
+
+	model += strlen("quest");
+	while (*model == ' ') {
+		model++;
+	}
+
+	if (*model >= '1' && *model <= '9') {
+		int version = *model - '0';
+		// A newer headset than we ship a config for gets the newest profile, not a missing file.
+		return (version > VR_DEVICE_VERSION_NEWEST) ? VR_DEVICE_VERSION_NEWEST : version;
+	}
+	if (strncmp(model, "pro", 3) == 0) {
+		return 2;
+	}
+	return 1;
+}
 
 void VR_Init( void* system, const char* name, int version ) {
 	if (vr_initialized)
@@ -116,6 +158,14 @@ void VR_Init( void* system, const char* name, int version ) {
 		ALOGE("Failed to get system.");
 		exit(1);
 	}
+
+	XrSystemProperties systemProperties;
+	memset(&systemProperties, 0, sizeof(systemProperties));
+	systemProperties.type = XR_TYPE_SYSTEM_PROPERTIES;
+	// On failure systemName stays empty and the parse falls back to the Quest 2 profile.
+	OXR(xrGetSystemProperties(vr_engine.appState.Instance, systemId, &systemProperties));
+	vr_device_version = VR_ParseDeviceVersion(systemProperties.systemName);
+	strncpy(vr_system_name, systemProperties.systemName, sizeof(vr_system_name) - 1);
 
 	// Get the graphics requirements.
 #ifdef ANDROID
@@ -224,6 +274,14 @@ void VR_LeaveVR( engine_t* engine ) {
 
 engine_t* VR_GetEngine( void ) {
 	return &vr_engine;
+}
+
+int VR_GetDeviceVersion( void ) {
+	return vr_device_version;
+}
+
+const char* VR_GetSystemName( void ) {
+	return vr_system_name;
 }
 
 bool VR_GetPlatformFlag(enum VRPlatformFlag flag) {

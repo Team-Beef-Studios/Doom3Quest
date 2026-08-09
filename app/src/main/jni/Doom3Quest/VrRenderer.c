@@ -10,6 +10,7 @@ XrPosef pose[ovrMaxNumEyes];
 XrView* projections;
 bool initialized = false;
 bool stageBoundsDirty = true;
+static bool menuYawNeedsUpdate = true;
 bool stageSupported = false;
 int vrConfig[VR_CONFIG_MAX] = {};
 float vrConfigFloat[VR_CONFIG_FLOAT_MAX] = {};
@@ -175,8 +176,8 @@ void VR_Recenter(engine_t* engine) {
 		}
 	}
 
-	// Update menu orientation
-	VR_SetConfigFloat(VR_CONFIG_MENU_YAW, 0.0f);
+	// Update menu orientation on next frame with valid head tracking
+	menuYawNeedsUpdate = true;
 	stageBoundsDirty = true;
 }
 
@@ -350,6 +351,7 @@ void VR_FinishFrame( engine_t* engine ) {
 	XrCompositionLayerProjectionView projection_layer_elements[2] = {};
 	if ((vrMode == VR_MODE_MONO_6DOF) || (vrMode == VR_MODE_STEREO_6DOF)) {
 		VR_SetConfigFloat(VR_CONFIG_MENU_YAW, XrQuaternionf_ToEulerAngles(pose[0].orientation).y);
+		menuYawNeedsUpdate = false;
 
 		for (int eye = 0; eye < ovrMaxNumEyes; eye++) {
 			ovrFramebuffer* frameBuffer = &engine->appState.Renderer.FrameBuffer;
@@ -375,6 +377,18 @@ void VR_FinishFrame( engine_t* engine ) {
 
 		layerUnion[layerCount++].Projection = projection_layer;
 	} else if ((vrMode == VR_MODE_MONO_SCREEN) || (vrMode == VR_MODE_STEREO_SCREEN)) {
+
+		if (menuYawNeedsUpdate) {
+			// Guard against uninitialized pose (first frame before xrLocateViews)
+			float qLenSq = pose[0].orientation.x * pose[0].orientation.x
+			              + pose[0].orientation.y * pose[0].orientation.y
+			              + pose[0].orientation.z * pose[0].orientation.z
+			              + pose[0].orientation.w * pose[0].orientation.w;
+			if (qLenSq > 0.5f) {
+				VR_SetConfigFloat(VR_CONFIG_MENU_YAW, XrQuaternionf_ToEulerAngles(pose[0].orientation).y);
+				menuYawNeedsUpdate = false;
+			}
+		}
 
 		// Flat screen pose
 		float distance = VR_GetConfigFloat(VR_CONFIG_CANVAS_DISTANCE);

@@ -55,6 +55,8 @@ void controlMouse(bool reset);
 
 
 //Called from engine code
+int Doom3Quest_GetDeviceVersion();
+
 int Doom3Quest_GetRefresh();
 
 bool Doom3Quest_useScreenLayer();

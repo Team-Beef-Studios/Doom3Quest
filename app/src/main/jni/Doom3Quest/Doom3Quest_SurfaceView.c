@@ -375,6 +375,13 @@ float Doom3Quest_GetFOV()
 	return VR_GetConfigFloat(VR_CONFIG_VIEWPORT_FOVY);
 }
 
+int Doom3Quest_GetDeviceVersion()
+{
+	int version = VR_GetDeviceVersion();
+	ALOGV("OpenXR system \"%s\" -> quest%d_default.cfg", VR_GetSystemName(), version);
+	return version;
+}
+
 int Doom3Quest_GetRefresh()
 {
 	return currentRefresh;

@@ -144,6 +144,11 @@ void VR_EnterVR( engine_t* engine, ovrEgl egl );
 void VR_LeaveVR( engine_t* engine );
 
 engine_t* VR_GetEngine( void );
+
+// Quest generation (1, 2 or 3) from the OpenXR system name. Valid after VR_Init.
+int VR_GetDeviceVersion( void );
+const char* VR_GetSystemName( void );
+
 bool VR_GetPlatformFlag(enum VRPlatformFlag flag);
 void VR_SetPlatformFLag(enum VRPlatformFlag flag, bool value);
 

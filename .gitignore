@@ -26,6 +26,7 @@ $RECYCLE.BIN/
 *.ap_
 *.class
 drbeef-release-key.keystore
+keystore.properties
 *.json
 *.bin
 *.ser
