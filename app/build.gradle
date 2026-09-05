@@ -2,9 +2,33 @@ plugins {
     id 'com.android.application'
 }
 
+// Release signing. Credentials live in a gitignored keystore.properties at the
+// repo root (never commit it). If the file is absent the release build stays
+// unsigned so the project still builds without the private key.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace 'com.drbeef.doom3quest'
     compileSdk 32
+
+    // Pinned, not left to the AGP default. NDK 27's clang rejects the implicit function
+    // declarations in the vendored SDL2 2.0.10 sources (SDL_egl.c).
+    ndkVersion '23.1.7779620'
+
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
 
     defaultConfig {
         applicationId "com.drbeef.doom3quest"
@@ -32,6 +56,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : null
         }
     }
     compileOptions {
