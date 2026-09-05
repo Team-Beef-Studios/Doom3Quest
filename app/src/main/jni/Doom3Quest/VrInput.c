@@ -1,4 +1,5 @@
 #include "VrInput.h"
+#include "VrRenderer.h"
 
 //OpenXR
 XrPath leftHandPath;
@@ -413,6 +414,6 @@ XrPosef IN_VRGetPose( int controllerIndex ) {
 	XrSpaceLocation loc = {};
 	loc.type = XR_TYPE_SPACE_LOCATION;
 	XrSpace aimSpace[] = { leftControllerAimSpace, rightControllerAimSpace };
-	xrLocateSpace(aimSpace[controllerIndex], engine->appState.CurrentSpace, (XrTime)(engine->predictedDisplayTime), &loc);
+	xrLocateSpace(aimSpace[controllerIndex], engine->appState.CurrentSpace, vrGameDisplayTime, &loc);
 	return loc.pose;
 }

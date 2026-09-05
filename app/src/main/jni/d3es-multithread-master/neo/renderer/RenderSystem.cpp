@@ -610,6 +610,10 @@ void idRenderSystemLocal::DrawDemoPics() {
 void GLimp_ActivateContext();
 void GLimp_DeactivateContext();
 
+#ifdef __ANDROID__
+extern "C" void VR_RegisterRenderThread( void );
+#endif
+
 int idRenderSystemLocal::BackendThreadRunner(void *localRenderSystem)
 {
 	idRenderSystemLocal *local = (idRenderSystemLocal*)localRenderSystem;
@@ -631,6 +635,10 @@ void idRenderSystemLocal::BackendThreadWait()
 void idRenderSystemLocal::BackendThread()
 {
 	GLimp_ActivateContext();
+
+#ifdef __ANDROID__
+	VR_RegisterRenderThread();
+#endif
 
 	while( 1 )
 	{

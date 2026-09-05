@@ -14,6 +14,15 @@ int Android_GetCVarInteger(const char* cvar)
 	return 0;
 }
 
+float Android_GetCVarFloat(const char* cvar)
+{
+	if (cvarSystem != nullptr) {
+		return cvarSystem->GetCVarFloat(cvar);
+	}
+
+	return 0.0f;
+}
+
 static const char *cmd_to_run = NULL;
 void Android_SetCommand(const char * cmd)
 {

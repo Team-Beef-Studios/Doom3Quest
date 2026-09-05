@@ -258,6 +258,32 @@ void VR_EnterVR( engine_t* engine, ovrEgl egl ) {
 #endif
 }
 
+void VR_RegisterRenderThread( void )
+{
+#ifdef ANDROID
+	engine_t* engine = VR_GetEngine();
+	if (!engine->appState.Session || !VR_GetPlatformFlag(VR_PLATFORM_EXTENSION_PERFORMANCE)) {
+		return;
+	}
+
+	int tid = (int)gettid();
+	if (engine->appState.RenderThreadTid == tid) {
+		return;
+	}
+	engine->appState.RenderThreadTid = tid;
+
+	PFN_xrSetAndroidApplicationThreadKHR pfnSetAndroidApplicationThreadKHR = NULL;
+	OXR(xrGetInstanceProcAddr(
+			engine->appState.Instance,
+			"xrSetAndroidApplicationThreadKHR",
+			(PFN_xrVoidFunction*)(&pfnSetAndroidApplicationThreadKHR)));
+	if (pfnSetAndroidApplicationThreadKHR) {
+		OXR(pfnSetAndroidApplicationThreadKHR(engine->appState.Session, XR_ANDROID_THREAD_TYPE_RENDERER_MAIN_KHR, tid));
+		ALOGV("Registered render backend thread %d as RENDERER_MAIN", tid);
+	}
+#endif
+}
+
 void VR_LeaveVR( engine_t* engine ) {
 	if (engine->appState.Session) {
 		OXR(xrDestroySpace(engine->appState.HeadSpace));

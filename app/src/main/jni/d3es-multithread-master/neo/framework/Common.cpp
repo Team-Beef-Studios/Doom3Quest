@@ -2313,6 +2313,9 @@ idCommonLocal::Frame
 =================
 */
 extern bool running;
+
+static unsigned int AsyncTimer(unsigned int interval, void *);
+
 void idCommonLocal::Frame( void ) {
 	try {
 
@@ -2324,6 +2327,18 @@ void idCommonLocal::Frame( void ) {
 							  cvarSystem->GetCVarInteger("vr_refresh"),
 							  cvarSystem->GetCVarFloat("vr_msaa"),
 							  cvarSystem->GetCVarFloat("vr_supersampling"));
+
+		{
+			static int lastTicMsec = 0;
+			int ticMsec = USERCMD_MSEC;
+			if (ticMsec != lastTicMsec) {
+				if (lastTicMsec != 0 && async_timer) {
+					SDL_RemoveTimer(async_timer);
+					async_timer = SDL_AddTimer(ticMsec, AsyncTimer, NULL);
+				}
+				lastTicMsec = ticMsec;
+			}
+		}
 
 		if (game) {
 			game->SetVRClientInfo(pVRClientInfo);
@@ -2437,7 +2452,7 @@ typedef struct {
 static const int MAX_ASYNC_STATS = 1024;
 asyncStats_t	com_asyncStats[MAX_ASYNC_STATS];		// indexed by com_ticNumber
 int prevAsyncMsec;
-int	lastTicMsec;
+long long lastTicUsec;
 
 void idCommonLocal::SingleAsyncTic( void ) {
 	// main thread code can prevent this from happening while modifying
@@ -2480,9 +2495,11 @@ idCommonLocal::Async
 =================
 */
 void idCommonLocal::Async( void ) {
-	int	msec = Sys_Milliseconds();
-	if ( !lastTicMsec ) {
-		lastTicMsec = msec - USERCMD_MSEC;
+	long long usec = (long long)Sys_Milliseconds() * 1000;
+	int periodUsec = 1000000 / USERCMD_REFRESH_HZ;
+
+	if ( !lastTicUsec ) {
+		lastTicUsec = usec - periodUsec;
 	}
 
 	if ( !com_preciseTic.GetBool() ) {
@@ -2491,27 +2508,25 @@ void idCommonLocal::Async( void ) {
 		return;
 	}
 
-	int ticMsec = USERCMD_MSEC;
-
-	// the number of msec per tic can be varies with the timescale cvar
+	// the number of usec per tic can be varies with the timescale cvar
 	float timescale = com_timescale.GetFloat();
 	if ( timescale != 1.0f ) {
-		ticMsec /= timescale;
-		if ( ticMsec < 1 ) {
-			ticMsec = 1;
+		periodUsec /= timescale;
+		if ( periodUsec < 1000 ) {
+			periodUsec = 1000;
 		}
 	}
 
 	// don't skip too many
 	if ( timescale == 1.0f ) {
-		if ( lastTicMsec + 10 * USERCMD_MSEC < msec ) {
-			lastTicMsec = msec - 10*USERCMD_MSEC;
+		if ( lastTicUsec + 10 * (long long)periodUsec < usec ) {
+			lastTicUsec = usec - 10 * (long long)periodUsec;
 		}
 	}
 
-	while ( lastTicMsec + ticMsec <= msec ) {
+	while ( lastTicUsec + periodUsec <= usec ) {
 		SingleAsyncTic();
-		lastTicMsec += ticMsec;
+		lastTicUsec += periodUsec;
 	}
 }
 

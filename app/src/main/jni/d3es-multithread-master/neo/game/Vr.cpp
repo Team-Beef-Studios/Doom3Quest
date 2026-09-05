@@ -139,9 +139,10 @@ idCVar vr_walkSpeedAdjust( "vr_walkSpeedAdjust", "20", CVAR_FLOAT | CVAR_ARCHIVE
 idCVar vr_headbbox( "vr_headbbox", "10.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
 
 //GB I've re-used this for both fixed position and hand. Check fixed and if worth keeping separate the two
-idCVar vr_pdaPosX( "vr_pdaPosX", "6.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
-idCVar vr_pdaPosY( "vr_pdaPosY", "4.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
-idCVar vr_pdaPosZ( "vr_pdaPosZ", "5.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
+idCVar vr_pdaTuning( "vr_pdaTuning", "0", CVAR_BOOL | CVAR_GAME, "Hold the off-hand grip to adjust vr_pdaPosX/Y/Z with the sticks, and log them once a second." );
+idCVar vr_pdaPosX( "vr_pdaPosX", "-2.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
+idCVar vr_pdaPosY( "vr_pdaPosY", "0.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
+idCVar vr_pdaPosZ( "vr_pdaPosZ", "-1.0", CVAR_FLOAT | CVAR_ARCHIVE, "" );
 idCVar vr_pdaPitch( "vr_pdaPitch", "30", CVAR_FLOAT | CVAR_ARCHIVE, "" );
 
 idCVar vr_comfortRepeat( "vr_comfortRepeat", "100", CVAR_ARCHIVE | CVAR_INTEGER, "Delay in MS between repeating comfort snap turns." );

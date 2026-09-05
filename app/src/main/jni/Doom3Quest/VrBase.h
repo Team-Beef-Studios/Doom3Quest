@@ -122,7 +122,6 @@ typedef struct {
 typedef struct {
 	uint64_t frameIndex;
 	ovrApp appState;
-	XrTime predictedDisplayTime;
 } engine_t;
 
 enum VRPlatformFlag {
@@ -142,6 +141,7 @@ void VR_Init( void* system, const char* name, int version );
 void VR_Destroy( engine_t* engine );
 void VR_EnterVR( engine_t* engine, ovrEgl egl );
 void VR_LeaveVR( engine_t* engine );
+void VR_RegisterRenderThread( void );
 
 engine_t* VR_GetEngine( void );
 
@@ -155,3 +155,6 @@ void VR_SetPlatformFLag(enum VRPlatformFlag flag, bool value);
 void ovrApp_Clear(ovrApp* app);
 void ovrApp_Destroy(ovrApp* app);
 int ovrApp_HandleXrEvents(ovrApp* app);
+
+void VR_NotifyRefreshRateChanged( int refresh );
+int VR_ConsumePendingRefreshRate( void );

@@ -404,6 +404,7 @@ void Doom3Quest_prepareEyeBuffer( )
 	VR_SetConfigFloat(VR_CONFIG_CANVAS_DISTANCE, 4);
 	VR_SetConfig(VR_CONFIG_MODE, Doom3Quest_useScreenLayer() ? VR_MODE_STEREO_SCREEN : VR_MODE_STEREO_6DOF);
 
+	VR_WaitFrame(VR_GetEngine());
 	VR_BeginFrame(VR_GetEngine());
 	VR_BindFramebuffer(VR_GetEngine());
 }
@@ -413,10 +414,6 @@ void Doom3Quest_finishEyeBuffer( )
 	VR_EndFrame(VR_GetEngine());
 	VR_FinishFrame(VR_GetEngine());
 	Doom3Quest_HapticEndFrame();
-
-	if (Doom3Quest_useScreenLayer()) {
-		VR_InitFrame(VR_GetEngine());
-	}
 }
 
 void shutdownVR() {
@@ -501,9 +498,12 @@ void Doom3Quest_FrameSetup(int controlscheme, int switch_sticks, int refresh, fl
 		currentRefresh = VR_GetRefreshRate();
 	}
 
-	if (!Doom3Quest_useScreenLayer()) {
-		VR_InitFrame(VR_GetEngine());
+	int runtimeRefresh = VR_ConsumePendingRefreshRate();
+	if (runtimeRefresh > 0) {
+		currentRefresh = runtimeRefresh;
 	}
+
+	VR_PollInput(VR_GetEngine());
 	Doom3Quest_processHaptics();
 	Doom3Quest_getHMDOrientation();
 	pVRClientInfo->right_handed = !controlscheme;

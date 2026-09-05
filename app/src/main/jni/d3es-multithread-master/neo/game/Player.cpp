@@ -6524,7 +6524,6 @@ idPlayerHand::SelectWeapon
 */
 void idPlayerHand::SelectWeapon( int num, bool force, bool specific )
 {
-	common->Printf( "Before SelectWeapon(%d, %d, %d, %d):\n", num, force, specific, whichHand);
     const char* weap;
 
     //if( !owner->weaponEnabled || owner->spectating || gameLocal.inCinematic || owner->health < 0 /*|| commonVr->handInGui*/ ) // Koz don't let the player change weapons if hand is currently in a gui
@@ -6666,8 +6665,6 @@ void idPlayerHand::SelectWeapon( int num, bool force, bool specific )
 
 		common->HapticEvent("weapon_switch", 0, 0, 100, 0, 0);
     }
-
-	common->Printf( "After SelectWeapon(%d):\n", idealWeapon);
 }
 
 /*
@@ -11971,6 +11968,11 @@ void idPlayer::Move( void ) {
 
                 idAngles bodyAng = bodyAxis.ToAngles();
                 idMat3 bodyAx = idAngles( bodyAng.pitch, bodyAng.yaw - commonVr->bodyYawOffset, bodyAng.roll ).Normalize180().ToMat3();
+
+                if ( respawning )
+                {
+                    commonVr->remainingMoveHmdBodyPositionDelta.x = commonVr->remainingMoveHmdBodyPositionDelta.y = 0;
+                }
 
                 newBodyOrigin = bodyOrigin + bodyAx[0] * commonVr->remainingMoveHmdBodyPositionDelta.x + bodyAx[1] * commonVr->remainingMoveHmdBodyPositionDelta.y;
                 commonVr->remainingMoveHmdBodyPositionDelta.x = commonVr->remainingMoveHmdBodyPositionDelta.y = 0;

@@ -641,6 +641,15 @@ int ovrApp_HandleXrEvents(ovrApp* app) {
 						perf_settings_event->fromLevel,
 						perf_settings_event->toLevel);
 			} break;
+			case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB: {
+				const XrEventDataDisplayRefreshRateChangedFB* refresh_rate_changed_event =
+						(XrEventDataDisplayRefreshRateChangedFB*)(baseEventHeader);
+				ALOGV(
+						"xrPollEvent: received XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB event: %f -> %f",
+						refresh_rate_changed_event->fromDisplayRefreshRate,
+						refresh_rate_changed_event->toDisplayRefreshRate);
+				VR_NotifyRefreshRateChanged((int)refresh_rate_changed_event->toDisplayRefreshRate);
+			} break;
 			case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING: {
 				XrEventDataReferenceSpaceChangePending* ref_space_change_event =
 						(XrEventDataReferenceSpaceChangePending*)(baseEventHeader);

@@ -37,10 +37,13 @@ void VR_GetResolution( engine_t* engine, int *pWidth, int *pHeight );
 void VR_InitRenderer( engine_t* engine, bool multiview );
 void VR_DestroyRenderer( engine_t* engine );
 
-bool VR_InitFrame( engine_t* engine );
+bool VR_PollInput( engine_t* engine );
+bool VR_WaitFrame( engine_t* engine );
 void VR_BeginFrame( engine_t* engine );
 void VR_EndFrame( engine_t* engine );
 void VR_FinishFrame( engine_t* engine );
+
+extern XrTime vrGameDisplayTime;
 
 int VR_GetConfig( enum VRConfig config );
 void VR_SetConfig( enum VRConfig config, int value);

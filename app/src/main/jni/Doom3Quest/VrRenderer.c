@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <pthread.h>
 
 XrFovf fov;
 XrPosef pose[ovrMaxNumEyes];
@@ -16,6 +17,30 @@ int vrConfig[VR_CONFIG_MAX] = {};
 float vrConfigFloat[VR_CONFIG_FLOAT_MAX] = {};
 PFN_xrGetDisplayRefreshRateFB pfnGetDisplayRefreshRate = NULL;
 PFN_xrRequestDisplayRefreshRateFB pfnRequestDisplayRefreshRate = NULL;
+PFN_xrEnumerateDisplayRefreshRatesFB pfnEnumerateDisplayRefreshRates = NULL;
+
+typedef struct {
+	XrTime displayTime;
+	XrView views[ovrMaxNumEyes];
+	XrFovf fov;
+} vrFrameState_t;
+
+#define VR_FRAME_SLOTS 4
+
+static pthread_mutex_t frameLock = PTHREAD_MUTEX_INITIALIZER;
+static vrFrameState_t frameSlots[VR_FRAME_SLOTS];
+static int slotActive = 0;
+static int64_t publishCount = 0;
+static int64_t consumeCount = 0;
+static XrTime lastWaitTime = 0;
+static XrTime lastWaitPeriod = 0;
+static int pendingRefreshRate = 0;
+
+static XrTime renderDisplayTime = 0;
+static bool renderFrameValid = false;
+static bool renderShouldRender = false;
+
+XrTime vrGameDisplayTime = 0;
 
 void VR_UpdateStageBounds(ovrApp* pappState) {
 	XrExtent2Df stageBounds = {};
@@ -136,7 +161,7 @@ void VR_Recenter(engine_t* engine) {
 	if (engine->appState.CurrentSpace != XR_NULL_HANDLE) {
 		XrSpaceLocation loc = {};
 		loc.type = XR_TYPE_SPACE_LOCATION;
-		OXR(xrLocateSpace(engine->appState.HeadSpace, engine->appState.CurrentSpace, engine->predictedDisplayTime, &loc));
+		OXR(xrLocateSpace(engine->appState.HeadSpace, engine->appState.CurrentSpace, renderDisplayTime, &loc));
 		XrVector3f hmdangles = XrQuaternionf_ToEulerAngles(loc.pose.orientation);
 
 		VR_SetConfigFloat(VR_CONFIG_RECENTER_YAW, VR_GetConfigFloat(VR_CONFIG_RECENTER_YAW) + hmdangles.y);
@@ -217,6 +242,15 @@ void VR_InitRenderer( engine_t* engine, bool multiview ) {
 	for (int eye = 0; eye < ovrMaxNumEyes; eye++) {
 		memset(&projections[eye], 0, sizeof(XrView));
 		projections[eye].type = XR_TYPE_VIEW;
+		projections[eye].pose = XrPosef_Identity();
+	}
+
+	for (int i = 0; i < VR_FRAME_SLOTS; i++) {
+		memset(&frameSlots[i], 0, sizeof(vrFrameState_t));
+		for (int eye = 0; eye < ovrMaxNumEyes; eye++) {
+			frameSlots[i].views[eye].type = XR_TYPE_VIEW;
+			frameSlots[i].views[eye].pose = XrPosef_Identity();
+		}
 	}
 
 	int msaa = VR_GetConfig(VR_CONFIG_VIEWPORT_MSAA);
@@ -235,30 +269,33 @@ void VR_DestroyRenderer( engine_t* engine ) {
 	initialized = false;
 }
 
-bool VR_InitFrame( engine_t* engine ) {
-	if (ovrApp_HandleXrEvents(&engine->appState)) {
-		VR_Recenter(engine);
-	}
+bool VR_PollInput( engine_t* engine ) {
 	if (engine->appState.SessionActive == false) {
 		return false;
 	}
 
-	if (stageBoundsDirty) {
-		VR_UpdateStageBounds(&engine->appState);
-		stageBoundsDirty = false;
+	pthread_mutex_lock(&frameLock);
+	XrTime baseTime = lastWaitTime;
+	XrTime basePeriod = lastWaitPeriod;
+	int64_t framesAhead = 1 + (publishCount - consumeCount);
+	pthread_mutex_unlock(&frameLock);
+
+	if (baseTime == 0) {
+		return false;
 	}
 
-	XrFrameState frameState = {};
-	frameState.type = XR_TYPE_FRAME_STATE;
-	frameState.next = NULL;
-	OXR(xrWaitFrame(engine->appState.Session, 0, &frameState));
-	engine->predictedDisplayTime = frameState.predictedDisplayTime;
+	if (framesAhead < 1) {
+		framesAhead = 1;
+	} else if (framesAhead > VR_FRAME_SLOTS) {
+		framesAhead = VR_FRAME_SLOTS;
+	}
+	vrGameDisplayTime = baseTime + basePeriod * framesAhead;
 
 	// Update HMD
 	XrViewLocateInfo projectionInfo = {};
 	projectionInfo.type = XR_TYPE_VIEW_LOCATE_INFO;
 	projectionInfo.viewConfigurationType = engine->appState.ViewportConfig.viewConfigurationType;
-	projectionInfo.displayTime = frameState.predictedDisplayTime;
+	projectionInfo.displayTime = vrGameDisplayTime;
 	projectionInfo.space = engine->appState.CurrentSpace;
 	XrViewState viewState = {XR_TYPE_VIEW_STATE, NULL};
 	uint32_t projectionCapacityInput = ovrMaxNumEyes;
@@ -298,25 +335,69 @@ bool VR_InitFrame( engine_t* engine ) {
 	fov.angleDown = -fovy / 2.0f;
 	fov.angleUp = fovy / 2.0f;
 
-	ovrFramebuffer* frameBuffer = &engine->appState.Renderer.FrameBuffer;
-	frameBuffer->TextureSwapChainIndex++;
-	frameBuffer->TextureSwapChainIndex %= frameBuffer->TextureSwapChainLength;
+	vrFrameState_t* slot = &frameSlots[publishCount % VR_FRAME_SLOTS];
+	slot->displayTime = vrGameDisplayTime;
+	slot->fov = fov;
+	memcpy(slot->views, projections, sizeof(XrView) * ovrMaxNumEyes);
+
+	pthread_mutex_lock(&frameLock);
+	publishCount++;
+	pthread_mutex_unlock(&frameLock);
+
+	return true;
+}
+
+bool VR_WaitFrame( engine_t* engine ) {
+	if (ovrApp_HandleXrEvents(&engine->appState)) {
+		VR_Recenter(engine);
+	}
+	if (engine->appState.SessionActive == false) {
+		renderFrameValid = false;
+		return false;
+	}
+
+	if (stageBoundsDirty) {
+		VR_UpdateStageBounds(&engine->appState);
+		stageBoundsDirty = false;
+	}
+
+	XrFrameState frameState = {};
+	frameState.type = XR_TYPE_FRAME_STATE;
+	frameState.next = NULL;
+	OXR(xrWaitFrame(engine->appState.Session, 0, &frameState));
+
+	renderDisplayTime = frameState.predictedDisplayTime;
+	renderShouldRender = frameState.shouldRender;
+	renderFrameValid = true;
+
+	pthread_mutex_lock(&frameLock);
+	lastWaitTime = frameState.predictedDisplayTime;
+	lastWaitPeriod = frameState.predictedDisplayPeriod;
+	if (consumeCount < publishCount) {
+		if (publishCount - consumeCount > VR_FRAME_SLOTS - 1) {
+			consumeCount = publishCount - (VR_FRAME_SLOTS - 1);
+		}
+		slotActive = (int)(consumeCount % VR_FRAME_SLOTS);
+		consumeCount++;
+	}
+	pthread_mutex_unlock(&frameLock);
 
 	return true;
 }
 
 void VR_BeginFrame( engine_t* engine ) {
-	// Get the HMD pose, predicted for the middle of the time period during which
-	// the new eye images will be displayed. The number of frames predicted ahead
-	// depends on the pipeline depth of the engine and the synthesis rate.
-	// The better the prediction, the less black will be pulled in at the edges.
+	if (!renderFrameValid) {
+		return;
+	}
+
 	XrFrameBeginInfo beginFrameDesc = {};
 	beginFrameDesc.type = XR_TYPE_FRAME_BEGIN_INFO;
 	beginFrameDesc.next = NULL;
 	OXR(xrBeginFrame(engine->appState.Session, &beginFrameDesc));
 
+	const vrFrameState_t* slot = &frameSlots[slotActive];
 	for (int eye = 0; eye < ovrMaxNumEyes; eye++) {
-		memcpy(&pose[eye], &projections[eye].pose, sizeof(XrPosef));
+		memcpy(&pose[eye], &slot->views[eye].pose, sizeof(XrPosef));
 	}
 
 	ovrFramebuffer_Acquire(&engine->appState.Renderer.FrameBuffer);
@@ -324,6 +405,10 @@ void VR_BeginFrame( engine_t* engine ) {
 }
 
 void VR_EndFrame( engine_t* engine ) {
+	if (!renderFrameValid) {
+		return;
+	}
+
 	VR_BindFramebuffer(engine);
 
 	// Show mouse cursor
@@ -343,10 +428,16 @@ void VR_EndFrame( engine_t* engine ) {
 }
 
 void VR_FinishFrame( engine_t* engine ) {
+	if (!renderFrameValid) {
+		return;
+	}
+	renderFrameValid = false;
+
 	int layerCount = 0;
 	ovrCompositorLayer_Union layerUnion[ovrMaxLayerCount];
 	memset(layerUnion, 0, sizeof(ovrCompositorLayer_Union) * ovrMaxLayerCount);
 
+	const XrFovf layerFov = frameSlots[slotActive].fov;
 	int vrMode = vrConfig[VR_CONFIG_MODE];
 	XrCompositionLayerProjectionView projection_layer_elements[2] = {};
 	if ((vrMode == VR_MODE_MONO_6DOF) || (vrMode == VR_MODE_STEREO_6DOF)) {
@@ -358,7 +449,7 @@ void VR_FinishFrame( engine_t* engine ) {
 			memset(&projection_layer_elements[eye], 0, sizeof(XrCompositionLayerProjectionView));
 			projection_layer_elements[eye].type = XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW;
 			projection_layer_elements[eye].pose = pose[eye];
-			projection_layer_elements[eye].fov = fov;
+			projection_layer_elements[eye].fov = layerFov;
 
 			memset(&projection_layer_elements[eye].subImage, 0, sizeof(XrSwapchainSubImage));
 			projection_layer_elements[eye].subImage.swapchain = frameBuffer->ColorSwapChain.Handle;
@@ -433,6 +524,10 @@ void VR_FinishFrame( engine_t* engine ) {
 		assert(false);
 	}
 
+	if (!renderShouldRender) {
+		layerCount = 0;
+	}
+
 	// Compose the layers for this frame.
 	const XrCompositionLayerBaseHeader* layers[ovrMaxLayerCount] = {};
 	for (int i = 0; i < layerCount; i++) {
@@ -441,7 +536,7 @@ void VR_FinishFrame( engine_t* engine ) {
 
 	XrFrameEndInfo endFrameInfo = {};
 	endFrameInfo.type = XR_TYPE_FRAME_END_INFO;
-	endFrameInfo.displayTime = engine->predictedDisplayTime;
+	endFrameInfo.displayTime = renderDisplayTime;
 	endFrameInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
 	endFrameInfo.layerCount = layerCount;
 	endFrameInfo.layers = layers;
@@ -494,6 +589,41 @@ int VR_GetRefreshRate() {
 	return 72;
 }
 
+static bool VR_IsRefreshRateSupported(int refresh) {
+	if (!pfnEnumerateDisplayRefreshRates) {
+		OXR(xrGetInstanceProcAddr(
+				VR_GetEngine()->appState.Instance,
+				"xrEnumerateDisplayRefreshRatesFB",
+				(PFN_xrVoidFunction*)(&pfnEnumerateDisplayRefreshRates)));
+	}
+	if (!pfnEnumerateDisplayRefreshRates) {
+		return true;
+	}
+
+	uint32_t count = 0;
+	OXR(pfnEnumerateDisplayRefreshRates(VR_GetEngine()->appState.Session, 0, &count, NULL));
+	if (count == 0) {
+		return true;
+	}
+
+	float* rates = (float*)malloc(count * sizeof(float));
+	OXR(pfnEnumerateDisplayRefreshRates(VR_GetEngine()->appState.Session, count, &count, rates));
+
+	bool supported = false;
+	for (uint32_t i = 0; i < count; i++) {
+		if ((int)rates[i] == refresh) {
+			supported = true;
+			break;
+		}
+	}
+	free(rates);
+
+	if (!supported) {
+		ALOGE("Display refresh rate %d Hz is not supported, keeping the current rate", refresh);
+	}
+	return supported;
+}
+
 void VR_SetRefreshRate(int refresh) {
 	if (VR_GetPlatformFlag(VR_PLATFORM_EXTENSION_REFRESH)) {
 		if (!pfnRequestDisplayRefreshRate) {
@@ -502,7 +632,24 @@ void VR_SetRefreshRate(int refresh) {
 					"xrRequestDisplayRefreshRateFB",
 					(PFN_xrVoidFunction*)(&pfnRequestDisplayRefreshRate)));
 		}
+		if (!VR_IsRefreshRateSupported(refresh)) {
+			return;
+		}
 		OXR(pfnRequestDisplayRefreshRate(VR_GetEngine()->appState.Session, 72.0f));
 		OXR(pfnRequestDisplayRefreshRate(VR_GetEngine()->appState.Session, (float)refresh));
 	}
+}
+
+void VR_NotifyRefreshRateChanged( int refresh ) {
+	pthread_mutex_lock(&frameLock);
+	pendingRefreshRate = refresh;
+	pthread_mutex_unlock(&frameLock);
+}
+
+int VR_ConsumePendingRefreshRate( void ) {
+	pthread_mutex_lock(&frameLock);
+	int refresh = pendingRefreshRate;
+	pendingRefreshRate = 0;
+	pthread_mutex_unlock(&frameLock);
+	return refresh;
 }
